@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define NMAX 100
-#define NMAX1 10
+#include "game.h"
+#include "../common/input.h"
 
 // function prints the macroboard and the attention coeffiecient of each player
 void print_results(char macroboard[NMAX1][NMAX1], int n,
@@ -69,10 +69,10 @@ int count_x = 0, count_0 = 0,
         count_x = 0,
         count_0 = 0;
         for (int l = 0; l < n; ++l) {
-            if (macroboard[k][l] == 'X') {
+            if (macroboard[l][k] == 'X') {
                 ++count_x;
             }
-            if (macroboard[k][l] == '0') {
+            if (macroboard[l][k] == '0') {
                 ++count_0;
             }
         }
@@ -195,79 +195,72 @@ int round_robin(char matrix[NMAX][NMAX], char player, int n, int *x, int *y) {
     return 1;
 }
 
-// function verifies each player's move conform to the game and completes the
-// matrix with each valid move
-int verify_data(int n, int m, char matrix[NMAX][NMAX]) {
-    int x, y, move_x = 0, move_0 = 0, win_moves_x = 0, win_moves_0 = 0;
-    int total_moves_x = 0, total_moves_0 = 0;
-    char player, macroboard[NMAX1][NMAX1], end = 0;
+/* Invalid coordinates and occupied cells use the workshop's diagonal
+ * fallback order. Only manually placed winning moves earn attention credit. */
+#ifndef PLAYGROUND_NO_MAIN
+static int play_moves(int n, int moves, char matrix[NMAX][NMAX]) {
+    int wins_x = 0, wins_0 = 0, turns_x = 0, turns_0 = 0;
+    int occupied = 0, full_reported = 0;
+    const int capacity = n * n * n * n;
+    char expected = 'X', macroboard[NMAX1][NMAX1];
     memset(macroboard, '-', sizeof(macroboard));
-    for (int i = 0; i < m; ++i) {
-        scanf("\n%c %d %d", &player, &x, &y);
-        if (player == 'X') {
-            ++move_x;
-        } else {
-            ++move_0;
+    for (int turn = 0; turn < moves; ++turn) {
+        char token[8], player;
+        int row, column, automatic = 0;
+        if (pg_read_token(stdin, token, sizeof(token)) != 1 ||
+            token[1] != '\0' || (token[0] != 'X' && token[0] != '0') ||
+            pg_read_int(stdin, &row) != 1 || pg_read_int(stdin, &column) != 1) {
+            fprintf(stderr, "Invalid move %d: expected X or 0 followed by two integers.\n", turn + 1);
+            return EXIT_FAILURE;
         }
-        if (move_x > move_0 + 1) {
-            printf("NOT YOUR TURN\n");
-            move_x -= 1;
-        } else if (move_x < move_0) {
-                printf("NOT YOUR TURN\n");
-                move_0 -= 1;
-        } else {
-            if (player == 'X') {
-            ++total_moves_x;
-        } else {
-            ++total_moves_0;
+        player = token[0];
+        if (occupied == capacity) {
+            if (!full_reported) puts("FULL BOARD");
+            full_reported = 1;
+            continue;
         }
-            if (x >= 0 && y >= 0 && x < n * n && y < n * n) {
-                if (matrix[x][y] != '-') {
-                    printf("NOT AN EMPTY CELL\n");
-                    if (round_robin(matrix, player, n, &x, &y) == 1 &&
-                        i == m - 1) {
-                    printf("FULL BOARD\n");
-                }
-                    verify_win(matrix, player, x, y, n, macroboard);
-                } else {
-                    matrix[x][y] = player;
-                    if (verify_win(matrix, player, x, y, n, macroboard) == 1) {
-                        if (player == 'X') {
-                            ++win_moves_x;
-                        } else {
-                            ++win_moves_0;
-                        }
-                    }
-                }
-            } else {
-                printf("INVALID INDEX\n");
-                if (round_robin(matrix, player, n, &x, &y) == 1 &&
-                    i == m - 1) {
-                    printf("FULL BOARD\n");
-                }
-                verify_win(matrix, player, x, y, n, macroboard);
+        if (player != expected) { puts("NOT YOUR TURN"); continue; }
+        expected = player == 'X' ? '0' : 'X';
+        if (player == 'X') ++turns_x; else ++turns_0;
+        if (row < 0 || column < 0 || row >= n * n || column >= n * n) {
+            puts("INVALID INDEX");
+            automatic = 1;
+        } else if (matrix[row][column] != '-') {
+            puts("NOT AN EMPTY CELL");
+            automatic = 1;
+        }
+        if (automatic) {
+            if (round_robin(matrix, player, n, &row, &column)) {
+                puts("FULL BOARD");
+                continue;
             }
+        } else matrix[row][column] = player;
+        ++occupied;
+        if (verify_win(matrix, player, row, column, n, macroboard) && !automatic) {
+            if (player == 'X') ++wins_x; else ++wins_0;
         }
     }
-    if (end_game(macroboard, n) == 0) {
-        end = '0';
-    }
-    if (end_game(macroboard, n) == 1) {
-        end = '1';
-    }
-    if (end_game(macroboard, n) == 2) {
-        end = '2';
-    }
-    print_results(macroboard, n, win_moves_x, win_moves_0,
-                   total_moves_x, total_moves_0, end);
-    return 0;
+    print_results(macroboard, n, wins_x, wins_0, turns_x, turns_0,
+                  (char)('0' + end_game(macroboard, n)));
+    return EXIT_SUCCESS;
 }
 
-int main() {
-    int n, m;
+int main(int argc, char **argv) {
+    int n, moves;
     char matrix[NMAX][NMAX];
+    if (argc == 2 && strcmp(argv[1], "--help") == 0) {
+        puts("Usage: tic_tac_toe < moves.txt\n"
+             "Input: n move_count, then move_count lines: X|0 row column.\n"
+             "n must be 1..10; the playing grid is (n*n) by (n*n).\n"
+             "X starts. Coordinates are zero-based. Invalid cells use a diagonal fallback.");
+        return EXIT_SUCCESS;
+    }
+    if (argc != 1 || pg_read_int(stdin, &n) != 1 || n < 1 || n > NMAX1 ||
+        pg_read_int(stdin, &moves) != 1 || moves < 0) {
+        fputs("Expected board size 1..10 and a nonnegative move count. Use --help.\n", stderr);
+        return EXIT_FAILURE;
+    }
     memset(matrix, '-', sizeof(matrix));
-    scanf("%d %d", &n, &m);
-    verify_data(n, m, matrix);
-    return 0;
+    return play_moves(n, moves, matrix);
 }
+#endif

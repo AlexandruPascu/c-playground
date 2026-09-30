@@ -1,0 +1,92 @@
+name: Build and test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: ${{ matrix.os }} console
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Configure C99 and strict warnings
+        run: >-
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          -DPLAYGROUND_WARNINGS_AS_ERRORS=ON
+          -DPLAYGROUND_REQUIRE_INTEGRATION_TESTS=ON
+      - name: Build
+        run: cmake --build build --config Release --parallel 2
+      - name: Test
+        run: ctest --test-dir build -C Release --output-on-failure
+
+  sanitizers:
+    name: Linux memory and undefined behavior checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Configure sanitizers
+        run: >-
+          cmake -S . -B build-sanitized -DCMAKE_BUILD_TYPE=Debug
+          -DPLAYGROUND_SANITIZERS=ON
+          -DPLAYGROUND_WARNINGS_AS_ERRORS=ON
+          -DPLAYGROUND_REQUIRE_INTEGRATION_TESTS=ON
+      - name: Build
+        run: cmake --build build-sanitized --parallel 2
+      - name: Test
+        run: ctest --test-dir build-sanitized --output-on-failure
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+
+  graphics:
+    name: Linux Allegro windows
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Install graphics dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pkg-config liballegro5-dev liballegro-image5-dev xvfb xauth
+      - name: Configure graphics
+        run: >-
+          cmake -S . -B build-graphics -DCMAKE_BUILD_TYPE=Release
+          -DPLAYGROUND_BUILD_GRAPHICS=ON
+          -DPLAYGROUND_WARNINGS_AS_ERRORS=ON
+          -DPLAYGROUND_REQUIRE_INTEGRATION_TESTS=ON
+      - name: Build
+        run: cmake --build build-graphics --parallel 2
+      - name: Test with a virtual display
+        run: xvfb-run -a ctest --test-dir build-graphics --output-on-failure
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'

@@ -235,10 +235,10 @@ int initial_displacement  [7 /*kind */ ][4 /* r2otation */ ][2 /* position */] =
     {-2, -3},
     {-2, -3}
    },
-/* I */
+/* I: keep every occupied cell inside the top of the board. */
   {
     {-2, -2},
-    {-2, -3},
+    {-2, -4},
     {-2, -2},
     {-2, -3}
    },
@@ -268,7 +268,7 @@ int initial_displacement  [7 /*kind */ ][4 /* r2otation */ ][2 /* position */] =
     {-2, -3},
     {-2, -3},
     {-2, -3},
-    {-2, -2}
+    {-2, -3}
    },
 /* T */
   {

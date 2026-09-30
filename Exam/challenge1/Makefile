@@ -1,8 +1,5 @@
-build: skelly
-
-skelly: skelly.c
-	gcc -o skelly skelly.c -Wall -Wextra -lallegro -lallegro_image
-
-.PHONY: clean
-clean:
-	rm skelly
+ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/../..)
+TARGET := skeleton
+LEGACY_TARGET := skelly
+GRAPHICS := ON
+include $(ROOT)/cmake/Workshop.mk

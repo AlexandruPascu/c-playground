@@ -1,55 +1,47 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "../../../algorithms/flood_fill.h"
+#include "../../../common/input.h"
 #include <string.h>
-
-void fill(int **img, int i, int j, int *sum) {
-    if (img[i][j] != 1) {
-        return;
+#ifndef PLAYGROUND_GRID_FILE
+#define PLAYGROUND_GRID_FILE "challenge4.txt"
+#endif
+int main(int argc, char **argv) {
+    FILE *input;
+    unsigned char *cells;
+    int rows, columns, value;
+    size_t count, largest;
+    if (argc == 2 && strcmp(argv[1], "--help") == 0) {
+        puts("Usage: components [grid.txt]\nInput: rows columns, then binary cells (0 or 1).\n"
+             "Finds the largest four-neighbour component. Limit: 1000000 cells.");
+        return 0;
     }
-    img[i][j] = -1;
-    ++(*sum);
-    fill(img, i+1, j, sum);
-    fill(img, i-1, j, sum);
-    fill(img, i, j+1, sum);
-    fill(img, i, j-1, sum);
-}
-
-int main() {
-    int n, m, maxSum = 0;
-    int **img;
-    FILE *in = fopen("challenge4.txt", "r");
-    fscanf(in, "%d %d", &n, &m);
-    img = (int**) malloc((n+2) * sizeof(int*));
-    for (int i = 0; i < n + 2; i++) {
-        img[i] = malloc((m + 2) * sizeof(int));
+    if (argc > 2) { fputs("Use components [grid.txt].\n", stderr); return 1; }
+    input = fopen(argc == 2 ? argv[1] : PLAYGROUND_GRID_FILE, "r");
+    if (!input) { fputs("Could not open the grid file.\n", stderr); return 1; }
+    if (pg_read_int(input, &rows) != 1 || pg_read_int(input, &columns) != 1 ||
+        rows < 1 || columns < 1 || rows > 1000000 || columns > 1000000 ||
+        rows > 1000000 / columns) {
+        fputs("Invalid grid dimensions (maximum 1000000 cells).\n", stderr);
+        fclose(input); return 1;
     }
-    for (int i = 0; i < m + 2; ++i) {
-        img[0][i] = img[n+1][i] = -1;
-    }
-    for (int i = 0; i < n+1; ++i) {
-        img[i][0] = img[i][m+1] = -1;
-    }
-    for (int i = 1; i <= n; ++i) {
-        for (int j = 1; j <= m; ++j) {
-            fscanf(in, "%d", &img[i][j]);
-            if (img[i][j] != 0 && img[i][j] != 1) {
-                exit(-1);
-            }
+    count = (size_t)rows * (size_t)columns;
+    cells = malloc(count);
+    if (!cells) { fclose(input); fputs("Could not allocate the grid.\n", stderr); return 1; }
+    for (size_t i = 0; i < count; ++i) {
+        if (pg_read_int(input, &value) != 1 || (value != 0 && value != 1)) {
+            fputs("Grid must contain exactly the specified number of binary cells.\n", stderr);
+            free(cells); fclose(input); return 1;
         }
+        cells[i] = (unsigned char)value;
     }
-    for (int i = 0; i < n; ++i) {
-        for (int j = 0; j < m; ++j) {
-            if (img[i][j] == 1) {
-                int sum = 0;
-                fill(img, i, j, &sum);
-                if (sum > maxSum) {
-                    maxSum = sum;
-                }
-            }
-        }
+    if (pg_read_int(input, &value) != 0) {
+        fputs("Unexpected extra data after the grid.\n", stderr);
+        free(cells); fclose(input); return 1;
     }
-    free(img);
-    printf("Maximum Area: %d\n", maxSum);
-    fclose(in);
+    fclose(input);
+    if (!largest_component(cells, (size_t)rows, (size_t)columns, &largest)) {
+        free(cells); fputs("Could not process the grid.\n", stderr); return 1;
+    }
+    printf("Maximum Area: %zu\n", largest);
+    free(cells);
     return 0;
 }

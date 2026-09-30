@@ -1,262 +1,90 @@
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_primitives.h>
-#include <allegro5/allegro_image.h>
+/* Playable driver for the workshop Tetris board and piece definitions. */
+#include "board.h"
+#include "../../graphics/window.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "pieces.h"
-
-#define WIN_WIDTH      600
-#define WIN_HEIGHT     800
-
-#define BOARD_WIDTH     10
-#define BOARD_HEIGHT    20
-
-#define POS_FREE         0
-#define POS_FILLED       1
+#include <string.h>
+#include <time.h>
 
 #define BLOCK_SIZE 30
 #define BORDER_SIZE 15
-#define BLOCK_BORDER_SIZE 2
+#define WIN_WIDTH (BOARD_WIDTH * BLOCK_SIZE + 2 * BORDER_SIZE)
+#define WIN_HEIGHT (BOARD_HEIGHT * BLOCK_SIZE + 2 * BORDER_SIZE)
 
-#define red    al_map_rgb(255,   0,   0)
-#define green  al_map_rgb(  0, 255,   0)
-#define blue   al_map_rgb(  0,   0, 255)
-#define black  al_map_rgb(  0,   0,   0)
-
-
-// TODO refactor into a struct
-int board[BOARD_HEIGHT][BOARD_WIDTH];
-
-void init_board() {
-    for (int i = 0; i < BOARD_HEIGHT; i++) {
-        for (int j = 0; j < BOARD_WIDTH; j++) {
-            board[i][j] = POS_FREE;
-        }
+static void draw_block(int x, int y, ALLEGRO_COLOR color) {
+    float left = (float)(BORDER_SIZE + x * BLOCK_SIZE);
+    float top = (float)(WIN_HEIGHT - BORDER_SIZE - (y + 1) * BLOCK_SIZE);
+    al_draw_filled_rectangle(left + 2, top + 2, left + BLOCK_SIZE - 2, top + BLOCK_SIZE - 2, color);
+}
+static void draw_game(int x, int y, int piece, int rotation, int ended) {
+    al_clear_to_color(al_map_rgb(12, 18, 28));
+    al_draw_rectangle(BORDER_SIZE - 2, BORDER_SIZE - 2, WIN_WIDTH - BORDER_SIZE + 2,
+                      WIN_HEIGHT - BORDER_SIZE + 2, al_map_rgb(80, 105, 130), 2);
+    for (int row = 0; row < BOARD_HEIGHT; ++row)
+        for (int column = 0; column < BOARD_WIDTH; ++column)
+            if (!is_free_block(column, row)) draw_block(column, row, al_map_rgb(210, 110, 80));
+    if (!ended)
+        for (int row = 0; row < 5; ++row)
+            for (int column = 0; column < 5; ++column)
+                if (get_block(piece, rotation, column, row))
+                    draw_block(x + column, y + row, al_map_rgb(90, 210, 230));
+    al_flip_display();
+}
+static int spawn_piece(int *x, int *y, int *piece, int *rotation) {
+    *piece = rand() % 7;
+    *rotation = rand() % 4;
+    *x = BOARD_WIDTH / 2 + get_x_displacement(*piece, *rotation);
+    *y = BOARD_HEIGHT - 1 + get_y_displacement(*piece, *rotation);
+    return is_possible_movement(*x, *y, *piece, *rotation);
+}
+int main(int argc, char **argv) {
+    PlaygroundWindow window;
+    ALLEGRO_EVENT event;
+    int smoke = 0, piece, rotation, x, y, ended, redraw = 1;
+    double elapsed, accumulated = 0;
+    if (argc == 2 && strcmp(argv[1], "--help") == 0) {
+        puts("Usage: tetris [--smoke-test]\nA/D or Left/Right: move; W/Up: rotate; S/Down: lower; R: restart; Esc: close.");
+        return 0;
     }
-}
-
-void print_board() {
-    for (int i = 0; i < BOARD_HEIGHT; i++) {
-        for (int j = 0; j < BOARD_WIDTH; j++) {
-            printf("%d ", board[i][j]);
-        }
-        puts("");
-    }
-}
-
-void place_piece(int x, int y, int piece, int rotation) {
-    // TODO define NUM_PIECE_BLOCKS 5 pe undeva ca sa nu mai hardcodam
-    for (int i = 0; i < 5; i++) {
-        for (int j = 0; j < 5; j++) {
-            if (get_block(piece, rotation, j, i)) {
-                board[i + y][j + x] = POS_FILLED;
-            }
-        }
-    }
-}
-
-int game_over() {
-    for (int i = 0; i < BOARD_WIDTH; i++) {
-        if (board[BOARD_HEIGHT - 1][i] == POS_FILLED)
-            return 1;
-    }
-
-    return 0;
-}
-
-void delete_line(int line) {
-    for (int i = line; i < BOARD_HEIGHT - 1; i++) {
-        for (int j = 0; j < BOARD_WIDTH; j++) {
-            board[i][j] = board[i+1][j];
-        }
-    }
-}
-
-int can_delete_line(int line) {
-    for (int i = 0; i < BOARD_WIDTH; i++) {
-        if (board[line][i] == POS_FREE) {
-            return 0;
-        }
-    }
-
-    return 1;
-}
-
-void delete_possible_lines() {
-    for (int line = 0; line < BOARD_HEIGHT - 1; line ++) {
-        while (can_delete_line(line)) {
-            delete_line(line);
-        }
-    }
-}
-
-int is_free_block(int x, int y) {
-    return board[y][x] == POS_FREE;
-}
-
-int is_possible_movement(int x, int y, int piece, int rotation) {
-    // TODO define num_blocks 5 (la fel ca mai sus)
-    for (int i = 0; i < 5; i++) {
-        for (int j = 0; j < 5; j++) {
-            if (get_block(piece, rotation, j, i)) {
-                // check if the block is out of bounds
-                if (x + j >= BOARD_WIDTH || x + j < 0)
-                    return 0;
-                if (y + i >= BOARD_HEIGHT || y + i < 0)
-                    return 0;
-                if (!is_free_block(x + j, y + i))
-                    return 0;
-            }
-        }
-    }
-
-    return 1;
-}
-
-int rand_int(int a, int b) {
-    return rand() % (b - a + 1) + a;
-}
-
-void draw_background() {
-    al_draw_filled_rectangle(0,
-                             WIN_HEIGHT,
-                             BOARD_WIDTH * BLOCK_SIZE + 2 * BORDER_SIZE,
-                             WIN_HEIGHT - BORDER_SIZE,
-                             blue);
-
-    al_draw_filled_rectangle(0,
-                             WIN_HEIGHT - BORDER_SIZE,
-                             BORDER_SIZE,
-                             WIN_HEIGHT - (BOARD_HEIGHT * BLOCK_SIZE) - BORDER_SIZE,
-                             blue);
-
-    al_draw_filled_rectangle(BOARD_WIDTH * BLOCK_SIZE + BORDER_SIZE,
-                             WIN_HEIGHT - BORDER_SIZE,
-                             BOARD_WIDTH * BLOCK_SIZE + 2 * BORDER_SIZE,
-                             WIN_HEIGHT - (BOARD_HEIGHT * BLOCK_SIZE) - BORDER_SIZE,
-                             blue);
-}
-
-void draw_rect_on_board(int x, int y, ALLEGRO_COLOR color) {
-    int start_x = BORDER_SIZE + x * BLOCK_SIZE;
-    int start_y = WIN_HEIGHT - (BORDER_SIZE + y * BLOCK_SIZE);
-
-    int end_x = BORDER_SIZE + (x + 1) * BLOCK_SIZE;
-    int end_y = WIN_HEIGHT - (BORDER_SIZE + (y + 1) * BLOCK_SIZE);
-
-    al_draw_filled_rectangle(start_x, start_y,
-                             end_x, end_y,
-                             al_map_rgb(0, 0, 0));
-    al_draw_filled_rectangle(start_x + BLOCK_BORDER_SIZE, start_y - BLOCK_BORDER_SIZE,
-                             end_x - BLOCK_BORDER_SIZE, end_y + BLOCK_BORDER_SIZE,
-                             color);
-}
-
-void draw_board() {
-    for (int i = 0; i < BOARD_HEIGHT; i++) {
-        for (int j = 0; j < BOARD_WIDTH; j++) {
-            if (!is_free_block(j, i)) {
-                draw_rect_on_board(j, i, al_map_rgb(255, 0, 0));
-            }
-        }
-    }
-}
-
-void draw_piece(int x, int y, int piece, int rotation) {
-    for (int i = 0; i < 5; i++) {
-        for (int j = 0; j < 5; j++) {
-            if (get_block(piece, rotation, j, i)) {
-                draw_rect_on_board(x + j, y + i, al_map_rgb(0, 255, 0));
-            }
-        }
-    }
-}
-
-int main() {
-    srand(time(0));
-    al_init();
-    al_init_primitives_addon();
-    al_install_keyboard();
-    ALLEGRO_DISPLAY *display = al_create_display(WIN_WIDTH, WIN_HEIGHT);
-    ALLEGRO_EVENT_QUEUE *event_queue = al_create_event_queue();
-    al_register_event_source(event_queue, al_get_keyboard_event_source());
-    al_register_event_source(event_queue, al_get_display_event_source(display));
-
-    ALLEGRO_TIMER *timer = al_create_timer(1.0 / 60);
-    al_register_event_source(event_queue, al_get_timer_event_source(timer));
-    al_start_timer(timer);
-
-    int piece = rand_int(0, 6);
-    int rotation = rand_int(0, 3);
-    int pos_x = (BOARD_WIDTH / 2) + get_x_displacement(piece, rotation);
-    int pos_y = BOARD_HEIGHT - 1 + get_y_displacement(piece, rotation);
-
-    double start_time = 0;
-    double end_time = 0;
-    double accumulated_time = 0;
-    double tick_time = 1;
-    int draw = 1;
-    while (!game_over()) {
-        double delta_time = end_time - start_time;
-        start_time = al_get_time();
-        ALLEGRO_EVENT event;
-        al_wait_for_event(event_queue, &event);
-        if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
-            break;
+    if (argc == 2 && strcmp(argv[1], "--smoke-test") == 0) smoke = 1;
+    else if (argc != 1) { fputs("Usage: tetris [--smoke-test]\n", stderr); return 1; }
+    if (!pg_window_open(&window, "Tetris - arrows/WASD, R restart, Esc close", WIN_WIDTH, WIN_HEIGHT, 0, smoke)) return 1;
+    srand(smoke ? 1u : (unsigned int)time(NULL));
+    init_board();
+    ended = !spawn_piece(&x, &y, &piece, &rotation);
+    while (pg_window_next(&window, &event, &elapsed)) {
         if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-            draw = 1;
-            switch (event.keyboard.keycode) {
-            case ALLEGRO_KEY_D:
-                if (is_possible_movement(pos_x + 1, pos_y, piece, rotation))
-                    pos_x ++;
-                break;
-            case ALLEGRO_KEY_A:
-                if (is_possible_movement(pos_x - 1, pos_y, piece, rotation))
-                    pos_x --;
-                break;
-            case ALLEGRO_KEY_W:
-                if (is_possible_movement(pos_x, pos_y - 1, piece, next_rotation(rotation)))
+            int key = event.keyboard.keycode;
+            if (key == ALLEGRO_KEY_R) {
+                init_board();
+                ended = !spawn_piece(&x, &y, &piece, &rotation);
+                accumulated = 0;
+                al_set_window_title(window.display, "Tetris - arrows/WASD, R restart, Esc close");
+            } else if (!ended) {
+                if ((key == ALLEGRO_KEY_D || key == ALLEGRO_KEY_RIGHT) && is_possible_movement(x + 1, y, piece, rotation)) ++x;
+                if ((key == ALLEGRO_KEY_A || key == ALLEGRO_KEY_LEFT) && is_possible_movement(x - 1, y, piece, rotation)) --x;
+                if ((key == ALLEGRO_KEY_W || key == ALLEGRO_KEY_UP) && is_possible_movement(x, y, piece, next_rotation(rotation)))
                     rotation = next_rotation(rotation);
-                break;
-            case ALLEGRO_KEY_S:
-                if (is_possible_movement(pos_x, pos_y - 1, piece, rotation))
-                    pos_y--;
-                break;
+                if ((key == ALLEGRO_KEY_S || key == ALLEGRO_KEY_DOWN) && is_possible_movement(x, y - 1, piece, rotation)) --y;
+            }
+            redraw = 1;
+        }
+        if (event.type == ALLEGRO_EVENT_TIMER && !ended) {
+            accumulated += elapsed;
+            if (accumulated >= 1.0) {
+                accumulated -= 1.0;
+                if (is_possible_movement(x, y - 1, piece, rotation)) --y;
+                else {
+                    if (!place_piece(x, y, piece, rotation)) ended = 1;
+                    delete_possible_lines();
+                    if (game_over() || !spawn_piece(&x, &y, &piece, &rotation)) ended = 1;
+                }
+                redraw = 1;
+                if (ended) al_set_window_title(window.display, "Tetris - game over! R restart, Esc close");
             }
         }
-
-        accumulated_time += delta_time;
-        if (accumulated_time > tick_time) {
-            draw = 1;
-            accumulated_time -= tick_time;
-
-            if (is_possible_movement(pos_x, pos_y - 1, piece, rotation)) {
-                pos_y--;
-            } else {
-                place_piece(pos_x, pos_y, piece, rotation);
-                delete_possible_lines();
-
-                piece = rand_int(0, 6);
-                rotation = rand_int(0, 3);
-                pos_x = (BOARD_WIDTH / 2) + get_x_displacement(piece, rotation);
-                pos_y = BOARD_HEIGHT - 1 + get_y_displacement(piece, rotation);
-            }
-        }
-
-        // drawing code
-        if (draw) {
-            al_clear_to_color(al_map_rgb(0, 0, 0));
-            draw_background();
-            draw_board();
-            draw_piece(pos_x, pos_y, piece, rotation);
-            al_flip_display();
-            draw = 0;
-        }
-
-        end_time = al_get_time();
+        if (redraw) { draw_game(x, y, piece, rotation, ended); redraw = 0; }
     }
-
-    al_destroy_display(display);
-    al_destroy_timer(timer);
-    al_destroy_event_queue(event_queue);
+    pg_window_close(&window);
+    return 0;
 }

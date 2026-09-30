@@ -16,3 +16,7 @@ Sa se determine numarul de pixeli din cea mai mare portiune neagra. (recursiv)
 ```
 Maximum area: 13
 ```
+
+## Maintained implementation
+
+The root CMake target is `components`. It uses an explicit DFS stack instead of recursion so large regions do not exhaust the call stack. The original exercise statement above is preserved. See the root README for input limits and build commands.

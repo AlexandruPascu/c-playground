@@ -1,8 +1,5 @@
-build: sierpinski
-
-sierpinski: sierpinski.c
-	gcc -o sierpinski sierpinski.c -Wall -Wextra -lallegro -lallegro_primitives
-
-.PHONY: clean
-clean:
-	rm sierpinski
+ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/../..)
+TARGET := sierpinski_carpet
+LEGACY_TARGET := sierpinski
+GRAPHICS := ON
+include $(ROOT)/cmake/Workshop.mk

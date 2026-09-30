@@ -1,9 +1,5 @@
-build: tetris
-
-tetris: tetris.c pieces.h
-	gcc -o tetris tetris.c -Wall -Wextra -lallegro -lallegro_primitives -lallegro_image
-
-.PHONY: clean
-
-clean:
-	rm tetris
+ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/../..)
+TARGET := tetris
+LEGACY_TARGET :=
+GRAPHICS := ON
+include $(ROOT)/cmake/Workshop.mk

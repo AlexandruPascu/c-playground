@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct {
+typedef struct Node {
 	int value;
 	struct Node *next;
 } Node;
@@ -12,23 +12,27 @@ typedef struct {
 
 List *create_list() {
 	List *l = malloc(sizeof(List));
+	if (!l) return NULL;
 	l->first = NULL;
 	l->last = NULL;
 	return l;
 }
 
-void add_first(List *l, int value) {
+int add_first(List *l, int value) {
 	Node *new = malloc(sizeof(Node));
+	if (!new) return 0;
 	new->value = value;
 	new->next = l->first;
 	if (l->first == NULL) {
 		l->last = new;
 	}
 	l->first = new;
+	return 1;
 }
 
-void add_last(List *l, int value) {
+int add_last(List *l, int value) {
 	Node *new = malloc(sizeof(Node));
+	if (!new) return 0;
 	new->value = value;
 	new->next = NULL;
 	if (l->last == NULL) {
@@ -37,6 +41,7 @@ void add_last(List *l, int value) {
 		l->last->next = new;
 		l->last = new;
 	}
+	return 1;
 }
 
 void remove_last(List *l) {
@@ -62,16 +67,22 @@ void print_linked_list(List *l) {
 	printf("\n");
 }
 
-int main() {
-	List *l1;
-	l1 = create_list();
-	add_first(l1, 31);
-	add_first(l1, 50);
-	add_first(l1, 10);
-	add_last(l1, 100);
-	print_linked_list(l1);
-	remove_last(l1);
-	remove_last(l1);
-	print_linked_list(l1);
-	return 0;
+void destroy_list(List *list) {
+    Node *node = list->first;
+    while (node) { Node *next = node->next; free(node); node = next; }
+    free(list);
+}
+int main(void) {
+    List *list = create_list();
+    if (!list) return 1;
+    if (!add_first(list, 31) || !add_first(list, 50) || !add_first(list, 10) || !add_last(list, 100)) {
+        destroy_list(list); return 1;
+    }
+    print_linked_list(list);
+    remove_last(list); remove_last(list);
+    print_linked_list(list);
+    remove_last(list); remove_last(list); remove_last(list); /* Empty-list removal is safe. */
+    if (list->first || list->last) { destroy_list(list); return 1; }
+    destroy_list(list);
+    return 0;
 }

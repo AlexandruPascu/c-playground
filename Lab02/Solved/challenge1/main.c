@@ -1,71 +1,37 @@
-#include <stdio.h>
+#include "../../../algorithms/fibonacci.h"
+#include "../../../common/input.h"
+#include <string.h>
 #include <time.h>
-#define fibo_small 40
-#define fibo_huge 400000000
-#define mod 666013
-int fibo_recursive(int n) {
-    if(n == 1 || n == 2)
-        return 1;
-    return (fibo_recursive(n - 1) % mod + fibo_recursive(n - 2) % mod) % mod;
-}
-int fibo_iterative(int n) {
-    int first = 1;
-    int second = 1;
-    int result;
-    for (int i = 3; i <= n; i++) {
-        result = (first + second) % mod;
-        first = second;
-        second = result;
-    }
-    return result;
-}
-void multiply(int a[2][2], int b[2][2]) {
-    int result[2][2];
-    for (int i = 0; i < 2; ++i)
-        for (int j = 0; j < 2; ++j) {
-            result[i][j] = 0;
-            for (int p = 0; p < 2; ++p)
-                result[i][j] += (1LL * a[i][p] * b[p][j]) % mod;
-        }
-    for (int i = 0; i < 2; ++i)
-        for (int j = 0; j < 2; ++j)
-            a[i][j] = result[i][j] % mod;
-}
-int fibo_logarithmic(int n) {
-    int result[2][2], matrix[2][2];
-    result[1][1] = 1;
-    result[0][0] = result[0][1] = result[1][0] = 0;
-    matrix[0][0] = 0;
-    matrix[0][1] = matrix[1][0] = matrix[1][1] = 1;
-
-    --n;
-    while (n) {
-        if (n % 2 == 1) {
-            --n;
-            multiply(result, matrix);
-        }
-        else {
-            n /= 2;
-            multiply(matrix, matrix);
-        }
-    }
-    return result[1][1];
-}
-double measure_time(int (*fibo)(), int n) {
+static void measure(const char *name, int (*algorithm)(unsigned int), unsigned int n) {
     clock_t start = clock();
-    fibo(n);
-    clock_t end = clock();
-    return ((double) (end - start)) / CLOCKS_PER_SEC;
+    int value = algorithm(n);
+    double elapsed = (double)(clock() - start) / CLOCKS_PER_SEC;
+    printf("%s: F(%u) mod %d = %d (%.6fs)\n", name, n, FIBONACCI_MODULUS, value, elapsed);
 }
-int main() {
-    printf("Al %d - lea termen Fibonacci este %d\n", fibo_small, fibo_logarithmic(fibo_small));
-    printf("%lfs - Recursive\n", measure_time(fibo_recursive, fibo_small));
-    printf("%lfs - Iterative\n", measure_time(fibo_iterative, fibo_small));
-    printf("%lfs - Logarithmic\n", measure_time(fibo_logarithmic, fibo_small));
-
-    printf("Al %d - lea termen Fibonacci este %d\n", fibo_huge, fibo_logarithmic(fibo_huge));
-    printf("%lfs - Iterative\n", measure_time(fibo_iterative, fibo_huge));
-    printf("%lfs - Logarithmic\n", measure_time(fibo_logarithmic, fibo_huge));
-
+int main(int argc, char **argv) {
+    int n = 30;
+    const char *method = argc == 3 ? argv[2] : "all";
+    if (argc == 2 && strcmp(argv[1], "--help") == 0) {
+        puts("Usage: fibonacci [n [all|recursive|iterative|matrix]]\n"
+             "Default n=30. Recursive is limited to n<=35; iterative to n<=10000000.\n"
+             "All mode skips methods above their limit. Values are modulo 666013.");
+        return 0;
+    }
+    if (argc > 3 || (argc >= 2 && (!pg_parse_int(argv[1], &n) || n < 0)) ||
+        (strcmp(method, "all") && strcmp(method, "recursive") &&
+         strcmp(method, "iterative") && strcmp(method, "matrix"))) {
+        fputs("Invalid Fibonacci arguments. Use --help.\n", stderr);
+        return 1;
+    }
+    if (strcmp(method, "all") == 0) {
+        if (n <= 35) measure("recursive", fibo_recursive, (unsigned int)n);
+        else puts("recursive: skipped (n > 35)");
+        if (n <= 10000000) measure("iterative", fibo_iterative, (unsigned int)n);
+        else puts("iterative: skipped (n > 10000000)");
+        measure("matrix", fibo_logarithmic, (unsigned int)n);
+    } else if (strcmp(method, "matrix") == 0) measure("matrix", fibo_logarithmic, (unsigned int)n);
+    else if (strcmp(method, "iterative") == 0 && n <= 10000000) measure("iterative", fibo_iterative, (unsigned int)n);
+    else if (strcmp(method, "recursive") == 0 && n <= 35) measure("recursive", fibo_recursive, (unsigned int)n);
+    else { fputs("Requested method exceeds its demonstration limit. Use matrix.\n", stderr); return 1; }
     return 0;
 }
