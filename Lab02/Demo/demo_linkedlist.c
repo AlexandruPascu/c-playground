@@ -10,7 +10,7 @@ typedef struct {
 	Node *first, *last;
 } List;
 
-List *create_list() {
+List *create_list(void) {
 	List *l = malloc(sizeof(List));
 	if (!l) return NULL;
 	l->first = NULL;
