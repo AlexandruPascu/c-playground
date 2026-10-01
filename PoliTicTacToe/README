@@ -1,0 +1,50 @@
+# Nested tic-tac-toe
+
+The board is bounded: `n` must be 1 through 10. There are `n × n` microboards, each containing `n × n` cells, giving a playing grid of `(n*n) × (n*n)` cells. The largest supported grid is 100 × 100.
+
+## Play together
+
+Build from the repository root with CMake, then run the terminal game:
+
+```sh
+./build/tic_tac_toe --play 2
+```
+
+Enter zero-based `row column` coordinates when prompted. Invalid or occupied cells are rejected without using your turn. Enter `r` to restart or `q` to finish and score. Sizes 1–10 are supported; 2 is a good starting point.
+
+With graphics enabled, launch the clickable version:
+
+```sh
+./build-graphics/tic_tac_toe_play 2
+```
+
+The window supports sizes 1–5. Click an empty cell, or move the selection with arrows and press Enter/Space. F (or Finish & score) ends the round; R (or Restart) begins again; Escape closes the window. The sidebar shows whose turn it is, claimed microboards, and macroboard line scores. Both modes support two local human players, with no AI opponent. A full grid ends the round automatically.
+
+The same scoring rules described below apply in both modes. Unlike the batch evaluator, interactive play never substitutes a different cell for an invalid move.
+
+## Evaluate a move sequence
+
+The original batch mode remains available:
+
+```sh
+./build/tic_tac_toe < examples/tic_tac_toe.txt
+```
+
+Input starts with `n move_count`, followed by exactly that many move records:
+
+```text
+2 3
+X 0 0
+0 2 0
+X 0 1
+```
+
+Players use `X` and the digit `0`. Coordinates are zero-based row and column indices on the full grid. X starts and turns alternate. An out-of-turn move is reported and ignored; it still consumes an input record.
+
+The first completed row, column, or diagonal in a microboard claims that microboard permanently. Further moves may still occupy its empty cells. Players can choose any free cell on the full grid; there is no forced-next-microboard rule. After all input moves, the program compares the number of completed rows, columns, and two diagonals on the macroboard. More lines wins; equal counts draw. Play does not end at the first macroboard line.
+
+An out-of-range or occupied coordinate triggers automatic placement. The scan checks the main diagonal, then successively more distant upper and lower diagonals until it finds a free cell. This is a fixed fallback rule, not an AI opponent. Once the playing grid is full, further well-formed move records are ignored and `FULL BOARD` is reported once.
+
+Output shows the macroboard (`-` means unclaimed), the winner, and each player's original "attention" statistic: manually placed moves that claimed a microboard divided by accepted turns. Automatic moves count as turns and may claim a microboard, but do not earn attention credit. A player with no accepted turns receives `N/A`.
+
+Invalid dimensions, negative move counts, unknown player symbols, malformed integers, and incomplete input produce an error and a nonzero exit status. Empty games (`move_count = 0`) are allowed. Token parsing is whitespace-based; line breaks in the example are for readability.
