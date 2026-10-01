@@ -1,19 +1,3 @@
-#include <allegro5/allegro.h>
-#include <stdio.h>
-
-#define WIDTH 800
-#define HEIGHT 600
-
-int main() {
-    al_init();
-
-    ALLEGRO_DISPLAY *display = al_create_display(WIDTH, HEIGHT);
-
-    int run = 1;
-    while (run) {
-
-    }
-
-    al_destroy_display(display);
-    return 0;
-}
+/* Completed exercise; see graphics/demos.c for the implementation. */
+#include "../../graphics/demos.h"
+int main(int argc, char **argv) { return pg_run_demo(argc, argv, PG_CLOSE); }

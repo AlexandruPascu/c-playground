@@ -1,13 +1,5 @@
-CC=gcc
-EXEC=challenge5
-
-all: $(EXEC)
-
-$(EXEC):  main.o
-	$(CC) -o $@ $^ -lm
-
-main.o: main.c
-	$(CC) -c $< 
-
-clean:
-	rm -f *.o $(EXEC)
+ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/../..)
+TARGET := image_grayscale
+LEGACY_TARGET := challenge5
+GRAPHICS := OFF
+include $(ROOT)/cmake/Workshop.mk

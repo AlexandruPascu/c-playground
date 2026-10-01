@@ -1,0 +1,10 @@
+push_back 4
+push_front 2
+push_back 9
+print
+min
+max
+find 4
+pop_front
+print
+quit

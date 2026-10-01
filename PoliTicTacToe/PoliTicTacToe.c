@@ -42,7 +42,7 @@ void print_results(char macroboard[NMAX1][NMAX1], int n,
 }
 
 // function verifies the winner of the macroboard
-int end_game(char macroboard[NMAX1][NMAX1], int n) {
+void tic_line_scores(char macroboard[NMAX1][NMAX1], int n, int *x, int *zero) {
 int count_x = 0, count_0 = 0,
         wins_x = 0, wins_0 = 0;
     // linie
@@ -109,12 +109,13 @@ int count_x = 0, count_0 = 0,
       ++wins_x;
     else if (count_0 == n)
       ++wins_0;
-    if (wins_x == wins_0)
-      return 0;
-    else if (wins_x > wins_0)
-      return 1;
-    else
-      return 2;
+    *x = wins_x;
+    *zero = wins_0;
+}
+int end_game(char macroboard[NMAX1][NMAX1], int n) {
+    int x, zero;
+    tic_line_scores(macroboard, n, &x, &zero);
+    return x == zero ? 0 : x > zero ? 1 : 2;
 }
 
 // function verifies in the microboard coresponding to the move if the player
@@ -195,6 +196,30 @@ int round_robin(char matrix[NMAX][NMAX], char player, int n, int *x, int *y) {
     return 1;
 }
 
+/* Interactive play rejects illegal cells and leaves the turn unchanged. */
+int tic_start(TicSession *game, int n) {
+    if (n < 1 || n > NMAX1) return 0;
+    memset(game, 0, sizeof(*game));
+    memset(game->cells, '-', sizeof(game->cells));
+    memset(game->macro, '-', sizeof(game->macro));
+    game->n = n;
+    game->player = 'X';
+    return 1;
+}
+int tic_move(TicSession *game, int row, int column) {
+    int index;
+    if (game->finished || game->n < 1 || game->n > NMAX1 || row < 0 || column < 0 ||
+        row >= game->n * game->n || column >= game->n * game->n || game->cells[row][column] != '-') return 0;
+    index = game->player == 'X' ? 0 : 1;
+    game->cells[row][column] = game->player;
+    ++game->turns[index];
+    if (verify_win(game->cells, game->player, row, column, game->n, game->macro)) ++game->claims[index];
+    ++game->occupied;
+    game->finished = game->occupied == game->n * game->n * game->n * game->n;
+    game->player = game->player == 'X' ? '0' : 'X';
+    return 1;
+}
+
 /* Invalid coordinates and occupied cells use the workshop's diagonal
  * fallback order. Only manually placed winning moves earn attention credit. */
 #ifndef PLAYGROUND_NO_MAIN
@@ -245,11 +270,55 @@ static int play_moves(int n, int moves, char matrix[NMAX][NMAX]) {
     return EXIT_SUCCESS;
 }
 
+static void print_interactive_board(const TicSession *game) {
+    int side = game->n * game->n;
+    printf("\n    ");
+    for (int column = 0; column < side; ++column) printf("%3d", column);
+    putchar('\n');
+    for (int row = 0; row < side; ++row) {
+        printf("%3d ", row);
+        for (int column = 0; column < side; ++column) printf("%3c", game->cells[row][column]);
+        putchar('\n');
+        if ((row + 1) % game->n == 0) putchar('\n');
+    }
+}
+static int play_interactive(int n) {
+    TicSession game;
+    char line[256];
+    if (!tic_start(&game, n)) { fputs("Board size must be 1..10.\n", stderr); return 1; }
+    puts("Two-player nested tic-tac-toe. Enter row column (zero-based), r to restart, or q to finish and score.\nThe winner has the most complete macroboard lines at the end.");
+    while (!game.finished) {
+        char first[64], second[64], extra[2];
+        int row, column, fields;
+        print_interactive_board(&game);
+        printf("%c to move > ", game.player); fflush(stdout);
+        if (!fgets(line, sizeof(line), stdin)) break;
+        if (!strchr(line, '\n') && !feof(stdin)) {
+            int c; while ((c = getchar()) != '\n' && c != EOF) { }
+            puts("Input is too long. Try again."); continue;
+        }
+        fields = sscanf(line, "%63s %63s %1s", first, second, extra);
+        if (fields == 1 && (!strcmp(first, "q") || !strcmp(first, "quit"))) break;
+        if (fields == 1 && !strcmp(first, "r")) { tic_start(&game, n); continue; }
+        if (fields != 2 || !pg_parse_int(first, &row) || !pg_parse_int(second, &column) || !tic_move(&game, row, column))
+            puts("Invalid or occupied cell. Your turn is unchanged.");
+    }
+    print_interactive_board(&game);
+    print_results(game.macro, n, game.claims[0], game.claims[1], game.turns[0], game.turns[1],
+                  (char)('0' + end_game(game.macro, n)));
+    return ferror(stdin) ? 1 : 0;
+}
+
 int main(int argc, char **argv) {
     int n, moves;
     char matrix[NMAX][NMAX];
+    if (argc >= 2 && strcmp(argv[1], "--play") == 0) {
+        n = 3;
+        if (argc > 3 || (argc == 3 && !pg_parse_int(argv[2], &n))) { fputs("Use tic_tac_toe --play [n].\n", stderr); return 1; }
+        return play_interactive(n);
+    }
     if (argc == 2 && strcmp(argv[1], "--help") == 0) {
-        puts("Usage: tic_tac_toe < moves.txt\n"
+        puts("Usage: tic_tac_toe < moves.txt\n       tic_tac_toe --play [n] (interactive two-player terminal game)\n"
              "Input: n move_count, then move_count lines: X|0 row column.\n"
              "n must be 1..10; the playing grid is (n*n) by (n*n).\n"
              "X starts. Coordinates are zero-based. Invalid cells use a diagonal fallback.");

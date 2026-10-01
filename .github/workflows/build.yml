@@ -77,7 +77,7 @@ jobs:
       - name: Install graphics dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y pkg-config liballegro5-dev liballegro-image5-dev xvfb xauth
+          sudo apt-get install -y pkg-config liballegro5-dev liballegro-image5-dev liballegro-ttf5-dev xvfb xauth
       - name: Configure graphics
         run: >-
           cmake -S . -B build-graphics -DCMAKE_BUILD_TYPE=Release

@@ -1,14 +1,5 @@
-CC=gcc
-CFLAGS=-std=c99
-EXEC=challenge1
-
-all: $(EXEC)
-
-$(EXEC):  main.o
-	$(CC) -o $@ $^
-
-main.o: main.c
-	$(CC) $(CFLAGS) -c $<
-
-clean:
-	rm -f *.o $(EXEC)
+ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/../../..)
+TARGET := numbers
+LEGACY_TARGET := challenge1
+GRAPHICS := OFF
+include $(ROOT)/cmake/Workshop.mk

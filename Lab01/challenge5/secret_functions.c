@@ -1,21 +1,15 @@
+#include "../../workshop/pin.h"
+#include <limits.h>
 #include <stdlib.h>
-
-int secret_hash(unsigned char *str) {
-
-    int hash = 191;
-    int c;
-
-    while (c = *str++)
-        hash = ((hash << 2) * c + hash * c) + c;
-
-    return hash;
+#include <stdio.h>
+int secret_hash(unsigned char *text) {
+    uint32_t hash = pg_pin_hash((const char *)text);
+    return hash <= INT_MAX ? (int)hash : -1 - (int)(UINT32_MAX - hash);
 }
-char* pin_to_string(int pin) {
-    char *result = malloc(5 * sizeof(char));
-    result[0] = '0' + pin / 1000;
-    result[1] = '0' + (pin % 1000) / 100;
-    result[2] = '0' + (pin % 100) / 10;
-    result[3] = '0' +  pin % 10;
-    result[4] = 0;
+char *pin_to_string(int pin) {
+    char *result;
+    if (pin < 0 || pin > 9999) return NULL;
+    result = malloc(5);
+    if (result) snprintf(result, 5, "%04d", pin);
     return result;
 }

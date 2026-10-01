@@ -1,15 +1,18 @@
 #include "window.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
 #ifndef PLAYGROUND_ASSET_DIR
 #define PLAYGROUND_ASSET_DIR "."
 #endif
 void pg_window_close(PlaygroundWindow *window) {
     if (window->timer) al_destroy_timer(window->timer);
     if (window->events) al_destroy_event_queue(window->events);
+    if (window->font) al_destroy_font(window->font);
     if (window->display) al_destroy_display(window->display);
     if (window->images) al_shutdown_image_addon();
     if (al_is_system_installed()) {
+        al_shutdown_font_addon();
         al_shutdown_primitives_addon();
         al_uninstall_system();
     }
@@ -26,10 +29,12 @@ int pg_window_open(PlaygroundWindow *window, const char *title, int width, int h
         if (!al_init_image_addon()) { fputs("Could not initialize image loading.\n", stderr); pg_window_close(window); return 0; }
         window->images = 1;
     }
+    al_init_font_addon();
+    window->font = al_create_builtin_font();
     window->display = al_create_display(width, height);
     window->events = al_create_event_queue();
     window->timer = al_create_timer(1.0 / 60.0);
-    if (!window->display || !window->events || !window->timer) {
+    if (!window->font || !window->display || !window->events || !window->timer) {
         fputs("Could not create the game window. Run in a graphical desktop (or Xvfb for tests).\n", stderr);
         pg_window_close(window); return 0;
     }
@@ -68,4 +73,24 @@ ALLEGRO_BITMAP *pg_load_bitmap(const char *name, int width, int height) {
         al_destroy_bitmap(bitmap); return NULL;
     }
     return bitmap;
+}
+
+int pg_window_mouse(PlaygroundWindow *window) {
+    if (!al_install_mouse()) { fputs("Could not initialize mouse input.\n", stderr); return 0; }
+    al_register_event_source(window->events, al_get_mouse_event_source());
+    return 1;
+}
+void pg_text(PlaygroundWindow *window, float x, float y, float scale, ALLEGRO_COLOR color, const char *format, ...) {
+    char text[512];
+    ALLEGRO_TRANSFORM previous = *al_get_current_transform(), transform;
+    va_list arguments;
+    va_start(arguments, format);
+    vsnprintf(text, sizeof(text), format, arguments);
+    va_end(arguments);
+    al_identity_transform(&transform);
+    al_scale_transform(&transform, scale, scale);
+    al_translate_transform(&transform, x, y);
+    al_use_transform(&transform);
+    al_draw_text(window->font, color, 0, 0, 0, text);
+    al_use_transform(&previous);
 }

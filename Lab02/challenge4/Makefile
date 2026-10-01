@@ -1,13 +1,5 @@
-CC=gcc
-EXEC=challenge4
-
-all: $(EXEC)
-
-$(EXEC):  main.o
-	$(CC) -o $@ $^ -lm
-
-main.o: main.c
-	$(CC) -c $< 
-
-clean:
-	rm -f *.o $(EXEC)
+ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/../..)
+TARGET := image_convert
+LEGACY_TARGET := challenge4
+GRAPHICS := OFF
+include $(ROOT)/cmake/Workshop.mk

@@ -39,3 +39,10 @@ with tempfile.TemporaryDirectory(prefix='c-playground-cli-') as temporary:
         run(components, [str(grid)], expected=1)
     run(components, [str(Path(temporary) / 'missing.txt')], expected=1)
 print('PASS valid inputs, former crashes, bounds, malformed tokens, and missing files')
+
+assert 'X won' in run(tic, ['--play', '1'], data='0 0\n')
+output = run(tic, ['--play', '2'], data='0 0\n0 0\n9 9\n2 0\n0 1\nq\n')
+assert output.count('Invalid or occupied cell') == 2 and 'X 0.5000000000' in output
+assert 'Draw again!' in run(tic, ['--play', '2'], data='0 0\nr\nq\n')
+run(tic, ['--play', '0'], expected=1)
+run(tic, ['--play', 'bad'], expected=1)

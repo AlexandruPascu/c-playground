@@ -42,7 +42,9 @@ int can_delete_line(int line) {
         if (board[line][x] == POS_FREE) return 0;
     return 1;
 }
-void delete_possible_lines(void) {
+int delete_possible_lines(void) {
+    int cleared = 0;
     for (int row = 0; row < BOARD_HEIGHT; ++row)
-        while (can_delete_line(row)) delete_line(row);
+        while (can_delete_line(row)) { delete_line(row); ++cleared; }
+    return cleared;
 }

@@ -10,7 +10,7 @@ int place_piece(int x, int y, int piece, int rotation);
 int game_over(void);
 void delete_line(int line);
 int can_delete_line(int line);
-void delete_possible_lines(void);
+int delete_possible_lines(void);
 int is_free_block(int x, int y);
 int is_possible_movement(int x, int y, int piece, int rotation);
 int get_block(int piece, int rotation, int x, int y);
