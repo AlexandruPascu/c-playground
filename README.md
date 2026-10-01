@@ -34,6 +34,7 @@ cmake -S . -B build-graphics -DPLAYGROUND_BUILD_GRAPHICS=ON -DCMAKE_BUILD_TYPE=R
 cmake --build build-graphics --parallel 2
 
 ./build-graphics/tetris
+./build-graphics/tetris --ai --seed 1
 ./build-graphics/tic_tac_toe_play 2
 ./build-graphics/skeleton
 ./build-graphics/sierpinski_triangle 5
@@ -41,7 +42,7 @@ cmake --build build-graphics --parallel 2
 ./build-graphics/sierpinski_carpet 3
 ```
 
-- **Tetris:** A/D or Left/Right move, W/Up rotates, S/Down soft-drops, Space hard-drops, P pauses, R restarts. Clear 1/2/3/4 rows for 100/300/500/800 points multiplied by the current level. Soft drops earn 1 point per cell and hard drops 2. Every 10 cleared lines raises the level and falling speed, up to level 20. The sidebar shows score, lines, level, and the best score for this session. Restart resets the game but keeps the session best.
+- **Tetris:** A/D or Left/Right move, W/Up rotates, S/Down soft-drops, Space hard-drops, P pauses, R restarts. Clear 1/2/3/4 rows for 100/300/500/800 points multiplied by the current level. Soft drops earn 1 point per cell and hard drops 2. Every 10 cleared lines raises the level and falling speed, up to level 20. The sidebar shows score, lines, level, and the best score for this session. Restart resets the game but keeps the session best. F2 toggles the AI or hands control back to you mid-piece; a green outline marks its planned landing. Start with `--ai --seed 1` for a repeatable demonstration. [How the AI works](docs/TETRIS_AI.md).
 - **Nested tic-tac-toe:** Click an empty cell, or use arrows and Enter/Space. X and digit 0 take turns on the same computer. F finishes and scores the board; R restarts. Start with size 2 for a quick game; the window supports sizes 1–5. See the [rules and evaluator](PoliTicTacToe/README).
 - **Skeleton:** WASD or arrows move; simultaneous directions allow diagonal movement at the same speed. The sprite wraps around the window.
 - **Fractals:** Left/Right change recursion depth. Triangle depth is limited to 0–9 and carpet depth to 0–5 to keep drawing responsive. The animation adds a depth every half-second.
@@ -54,7 +55,7 @@ CMake copies the sprite sheets into `build-graphics/assets/`; programs can be la
 | Example | Where to read | What it demonstrates |
 | --- | --- | --- |
 | Nested tic-tac-toe | [PoliTicTacToe](PoliTicTacToe/README) | An `n × n` macroboard of `n × n` microboards. Line checks claim microboards; the final score compares complete macroboard lines. Includes a clickable game, terminal play, and a batch move evaluator. Only the batch evaluator uses a diagonal fallback for invalid cells. No AI opponent. |
-| Tetris | [board rules](Lab05/Solved/board.c), [game loop](Lab05/Solved/tetris.c) | Grid collisions, four precomputed orientations of each piece, full-row removal and downward compaction, timer-driven falling, spawn checks, line/drop scoring, and level progression. |
+| Tetris | [board rules](Lab05/Solved/board.c), [game loop](Lab05/Solved/tetris.c) | Grid collisions, four precomputed orientations of each piece, full-row removal and downward compaction, timer-driven falling, spawn checks, line/drop scoring, level progression, and a heuristic autoplayer that searches reachable placements. |
 | Fibonacci | [three implementations](algorithms/fibonacci.c) | Naive recursion repeats subproblems (exponential time), iteration takes `O(n)` time and constant space, and 2×2 matrix exponentiation takes `O(log n)` time. All return `F(n) mod 666013`, with `F(0)=0`. |
 | Largest connected region | [iterative flood fill](algorithms/flood_fill.c) | Depth-first search through four-neighbour cells in a binary grid. Each cell is visited once: `O(rows × columns)` time and worst-case auxiliary space. An explicit stack avoids recursive stack overflow. |
 | Linked list and structs | [list demo](Lab02/Demo/demo_linkedlist.c), [struct demo](Lab02/Demo/demo_struct.c) | Node allocation, pointer links, insertion/removal, and releasing owned memory; named fields group related data. |
@@ -87,7 +88,7 @@ ctest --test-dir build-sanitized --output-on-failure
 xvfb-run -a ctest --test-dir build-graphics --output-on-failure
 ```
 
-Tests cover interactive and batch tic-tac-toe rules, linked-list ownership, PIN recovery, numeric/text input, image pixel values and XOR round trips, Tetris scoring/levels/drop points and row clearing and every piece's rotations/spawn/collision, Fibonacci base cases and method agreement, flood-fill borders and large components, malformed input, and graphics startup/animation/shutdown. The window checks do not replace interactive playtesting. GitHub Actions runs the console matrix, Linux sanitizers, and Linux Allegro/Xvfb checks.
+Tests cover AI paths through overhangs, sealed cavities, seeded games and deterministic replay, interactive and batch tic-tac-toe rules, linked-list ownership, PIN recovery, numeric/text input, image pixel values and XOR round trips, Tetris scoring/levels/drop points and row clearing and every piece's rotations/spawn/collision, Fibonacci base cases and method agreement, flood-fill borders and large components, malformed input, and graphics startup/animation/shutdown. The window checks do not replace interactive playtesting. GitHub Actions runs the console matrix, Linux sanitizers, and Linux Allegro/Xvfb checks.
 
 ## Background and credit
 

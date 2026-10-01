@@ -9,7 +9,9 @@ for executable in (triangle, carpet, tetris, skeleton, tic, hello):
 for executable, arguments in [(triangle, ['10']), (triangle, ['-1']), (triangle, ['2', '3']),
                               (carpet, ['6']), (carpet, ['garbage']),
                               (carpet, ['999999999999999999999999']),
-                              (tetris, ['unexpected']), (skeleton, ['unexpected']),
+                              (tetris, ['unexpected']), (tetris, ['--seed']),
+                              (tetris, ['--seed', '0']), (tetris, ['--seed', 'bad']),
+                              (tetris, ['--ai', 'bad']), (skeleton, ['unexpected']),
                               (tic, ['0']), (tic, ['6']), (tic, ['bad']),
                               (tic, ['2', '3']), (hello, ['--font']),
                               (hello, ['unexpected'])]:

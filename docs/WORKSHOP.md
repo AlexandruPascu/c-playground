@@ -18,6 +18,7 @@ Build instructions are in the [README](../README.md). Run commands below from th
 | Lab02/4 | `image_convert [input output.bmp]` | Decode a JPEG/PNG/BMP and write BMP. No arguments converts the supplied JPEG. |
 | Lab02/5 | `image_grayscale [input average.png weighted.png]` | Produce mean-RGB and weighted grayscale versions, preserving alpha. Compare their treatment of red, green, and blue. |
 | Lab02/6 | `image_decode [input output.png [PIN]]` | Reverse the workshop's rolling-XOR encoding. The default recovers PIN 4903, finds prime 199, and performs 127 inverse passes. No arguments decodes the supplied image. |
+| Lab05 AI | `tetris_ai --seed 1 --games 20 --pieces 1000` | Run repeatable Tetris games without a display; CSV reports pieces, lines, score, level, and why each game stopped. See [the planner guide](TETRIS_AI.md). |
 | Lab02/Demo | `linked_list`, `structs` | Small fixed demonstrations of node operations and structures. |
 | PoliTicTacToe | `tic_tac_toe --play 2` | Play a nested board in the terminal. Omit `--play` to evaluate a supplied move sequence. See the [complete rules](../PoliTicTacToe/README). |
 
@@ -56,7 +57,7 @@ Use `./build-graphics/<executable>`. Escape and the close button exit. `--smoke-
 | Lab04/3 | `moving_square` | Move with held WASD/arrows; diagonal speed is normalized. |
 | Lab04/4 | `coin_animation` | Cycles through a coin sprite sheet. |
 | Lab04/5 | `character_animation` | Move the original character sprite with WASD/arrows; animation follows direction and stops when idle. |
-| Lab05 | `tetris` | Play with arrows/WASD, Space to hard-drop, P to pause, R to restart. Score, lines, level, and session best are visible. See [scoring rules](../README.md#graphics-with-allegro-5). |
+| Lab05 | `tetris` | Play with arrows/WASD, Space to hard-drop, P to pause, R to restart. F2 toggles the autoplayer or returns control. `--ai --seed 1` starts a repeatable demonstration. Score, lines, level, and session best are visible. See [scoring rules](../README.md#graphics-with-allegro-5). |
 | Exam/1 | `skeleton` | Move the animated skeleton with WASD/arrows, including diagonals. |
 | Exam/2 | `sierpinski_carpet [depth]` | Recursive carpet. Left/Right changes depth from 0–5. |
 | PoliTicTacToe | `tic_tac_toe_play [size]` | Click to play, arrows + Enter/Space also work. F scores early; R restarts. Default size 3, supported 1–5. |

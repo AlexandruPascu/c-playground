@@ -2,32 +2,33 @@
 #include "board.h"
 #include "pieces.h"
 #include <string.h>
-int board[BOARD_HEIGHT][BOARD_WIDTH];
+TetrisBoard tetris_board;
 void init_board(void) { memset(board, 0, sizeof(board)); }
 int is_free_block(int x, int y) {
     return x >= 0 && x < BOARD_WIDTH && y >= 0 && y < BOARD_HEIGHT &&
            board[y][x] == POS_FREE;
 }
-int is_possible_movement(int x, int y, int piece, int rotation) {
+int tetris_board_can_move(const TetrisBoard *state, int x, int y, int piece, int rotation) {
     if (piece < 0 || piece >= 7 || rotation < 0 || rotation >= 4 ||
         x < -4 || x >= BOARD_WIDTH || y < -4 || y >= BOARD_HEIGHT) return 0;
     for (int row = 0; row < 5; ++row)
         for (int column = 0; column < 5; ++column)
             if (get_block(piece, rotation, column, row) &&
-                !is_free_block(x + column, y + row)) return 0;
+                (x + column < 0 || x + column >= BOARD_WIDTH || y + row < 0 ||
+                 y + row >= BOARD_HEIGHT || state->cells[y + row][x + column] != POS_FREE)) return 0;
     return 1;
 }
-int place_piece(int x, int y, int piece, int rotation) {
-    if (!is_possible_movement(x, y, piece, rotation)) return 0;
+int tetris_board_place(TetrisBoard *state, int x, int y, int piece, int rotation) {
+    if (!tetris_board_can_move(state, x, y, piece, rotation)) return 0;
     for (int row = 0; row < 5; ++row)
         for (int column = 0; column < 5; ++column)
             if (get_block(piece, rotation, column, row))
-                board[y + row][x + column] = POS_FILLED;
+                state->cells[y + row][x + column] = POS_FILLED;
     return 1;
 }
-int game_over(void) {
+int tetris_board_over(const TetrisBoard *state) {
     for (int x = 0; x < BOARD_WIDTH; ++x)
-        if (board[BOARD_HEIGHT - 1][x] != POS_FREE) return 1;
+        if (state->cells[BOARD_HEIGHT - 1][x] != POS_FREE) return 1;
     return 0;
 }
 void delete_line(int line) {
@@ -42,9 +43,26 @@ int can_delete_line(int line) {
         if (board[line][x] == POS_FREE) return 0;
     return 1;
 }
-int delete_possible_lines(void) {
-    int cleared = 0;
-    for (int row = 0; row < BOARD_HEIGHT; ++row)
-        while (can_delete_line(row)) { delete_line(row); ++cleared; }
+int tetris_board_clear(TetrisBoard *state) {
+    int destination = 0, cleared = 0;
+    for (int row = 0; row < BOARD_HEIGHT; ++row) {
+        int full = 1;
+        for (int x = 0; x < BOARD_WIDTH; ++x)
+            if (state->cells[row][x] == POS_FREE) full = 0;
+        if (full) ++cleared;
+        else {
+            if (destination != row) memcpy(state->cells[destination], state->cells[row], sizeof(state->cells[row]));
+            ++destination;
+        }
+    }
+    while (destination < BOARD_HEIGHT) memset(state->cells[destination++], 0, sizeof(state->cells[0]));
     return cleared;
 }
+int is_possible_movement(int x, int y, int piece, int rotation) {
+    return tetris_board_can_move(&tetris_board, x, y, piece, rotation);
+}
+int place_piece(int x, int y, int piece, int rotation) {
+    return tetris_board_place(&tetris_board, x, y, piece, rotation);
+}
+int game_over(void) { return tetris_board_over(&tetris_board); }
+int delete_possible_lines(void) { return tetris_board_clear(&tetris_board); }
