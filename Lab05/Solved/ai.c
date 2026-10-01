@@ -1,5 +1,5 @@
 #include "ai.h"
-#include <limits.h>
+#include <float.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -36,10 +36,10 @@ int tetris_spawn(const TetrisBoard *state, uint32_t *random_state, TetrisPose *p
     pose->y = BOARD_HEIGHT - 1 + get_y_displacement(pose->piece, pose->rotation);
     return valid(state, *pose);
 }
-static int evaluate(const TetrisBoard *state, TetrisPose landing) {
+static double evaluate(const TetrisBoard *state, TetrisPose landing, const TetrisWeights *weights) {
     TetrisBoard result = *state;
     int heights[BOARD_WIDTH] = {0}, total = 0, holes = 0, bumpiness = 0, maximum = 0, lines;
-    if (!tetris_board_place(&result, landing.x, landing.y, landing.piece, landing.rotation)) return INT_MIN;
+    if (!tetris_board_place(&result, landing.x, landing.y, landing.piece, landing.rotation)) return -DBL_MAX;
     lines = tetris_board_clear(&result);
     for (int x = 0; x < BOARD_WIDTH; ++x) {
         for (int y = BOARD_HEIGHT - 1; y >= 0; --y) {
@@ -50,27 +50,28 @@ static int evaluate(const TetrisBoard *state, TetrisPose landing) {
         if (heights[x] > maximum) maximum = heights[x];
         if (x) bumpiness += abs(heights[x] - heights[x - 1]);
     }
-    /* Hand-selected baseline weights, not a trained model. Do not reward drop points:
-       survival and line clearing are the objective. Top-out dominates all other terms. */
-    return 100 * lines - 5 * total - 80 * holes - 3 * bumpiness - 2 * maximum
-           - (tetris_board_over(&result) ? 1000000 : 0);
+    /* Training and gameplay use the same features after row clearing. A fixed top-out
+       penalty dominates any permitted weight vector; drop bonuses are never optimized. */
+    return weights->values[0] * lines + weights->values[1] * total + weights->values[2] * holes
+           + weights->values[3] * bumpiness + weights->values[4] * maximum
+           - (tetris_board_over(&result) ? 1e9 : 0);
 }
 static int index_of(TetrisPose pose) {
     return ((pose.y + 4) * (BOARD_WIDTH + 4) + pose.x + 4) * 4 + pose.rotation;
 }
-int tetris_ai_plan(const TetrisBoard *state, TetrisPose start, TetrisPlan *plan) {
+int tetris_ai_plan_weighted(const TetrisBoard *state, TetrisPose start, const TetrisWeights *weights, TetrisPlan *plan) {
     SearchNode nodes[TETRIS_AI_MAX_STATES];
     unsigned char seen[TETRIS_AI_MAX_STATES] = {0};
     int count = 1, best = -1;
     memset(plan, 0, sizeof(*plan));
-    plan->value = INT_MIN;
-    if (!valid(state, start)) return 0;
+    plan->value = -DBL_MAX;
+    if (!valid(state, start) || !tetris_weights_valid(weights)) return 0;
     nodes[0].pose = start; nodes[0].parent = -1;
     seen[index_of(start)] = 1;
     for (int head = 0; head < count; ++head) {
         TetrisPose pose = nodes[head].pose;
         if (!tetris_board_can_move(state, pose.x, pose.y - 1, pose.piece, pose.rotation)) {
-            int value = evaluate(state, pose);
+            double value = evaluate(state, pose, weights);
             ++plan->candidates;
             /* BFS and strict comparison prefer a shorter path on equal values. */
             if (value > plan->value) { plan->value = value; best = head; }
@@ -101,4 +102,8 @@ int tetris_ai_plan(const TetrisBoard *state, TetrisPose start, TetrisPlan *plan)
     while (plan->count && plan->actions[plan->count - 1] == TETRIS_DOWN) --plan->count;
     plan->actions[plan->count++] = TETRIS_DROP;
     return 1;
+}
+
+int tetris_ai_plan(const TetrisBoard *state, TetrisPose start, TetrisPlan *plan) {
+    return tetris_ai_plan_weighted(state, start, &tetris_default_weights, plan);
 }

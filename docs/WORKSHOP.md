@@ -18,7 +18,7 @@ Build instructions are in the [README](../README.md). Run commands below from th
 | Lab02/4 | `image_convert [input output.bmp]` | Decode a JPEG/PNG/BMP and write BMP. No arguments converts the supplied JPEG. |
 | Lab02/5 | `image_grayscale [input average.png weighted.png]` | Produce mean-RGB and weighted grayscale versions, preserving alpha. Compare their treatment of red, green, and blue. |
 | Lab02/6 | `image_decode [input output.png [PIN]]` | Reverse the workshop's rolling-XOR encoding. The default recovers PIN 4903, finds prime 199, and performs 127 inverse passes. No arguments decodes the supplied image. |
-| Lab05 AI | `tetris_ai --seed 1 --games 20 --pieces 1000` | Run repeatable Tetris games without a display; CSV reports pieces, lines, score, level, and why each game stopped. See [the planner guide](TETRIS_AI.md). |
+| Lab05 AI | `tetris_ai --seed 1 --games 20 --pieces 1000` | Run repeatable Tetris games without a display; CSV reports pieces, lines, score, level, and why each game stopped. Use `--weights models/tetris/cem-v1.weights` for the learned policy. See [the planner guide](TETRIS_AI.md) and [cross-entropy training](TETRIS_TRAINING.md). |
 | Lab02/Demo | `linked_list`, `structs` | Small fixed demonstrations of node operations and structures. |
 | PoliTicTacToe | `tic_tac_toe --play 2` | Play a nested board in the terminal. Omit `--play` to evaluate a supplied move sequence. See the [complete rules](../PoliTicTacToe/README). |
 

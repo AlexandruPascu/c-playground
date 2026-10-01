@@ -4,11 +4,15 @@
 #include <string.h>
 int main(int argc, char **argv) {
     int seed = 1, limit = 1000, games = 1;
+    TetrisWeights weights = tetris_default_weights;
+    const char *weights_path = NULL;
+    char error[256];
     for (int i = 1; i < argc; i += 2) {
         int value;
         if (!strcmp(argv[i], "--help")) {
-            puts("Usage: tetris_ai [--seed 1..2147483647] [--pieces 1..100000] [--games 1..100]\nRuns the same heuristic planner without a display. Games use consecutive seeds.\nCSV columns: seed,pieces,lines,score,level,status (limit or game_over)."); return 0;
+            puts("Usage: tetris_ai [--seed 1..2147483647] [--pieces 1..100000] [--games 1..100] [--weights file]\nRuns the same heuristic planner without a display. Games use consecutive seeds.\nCSV columns: seed,pieces,lines,score,level,status (limit or game_over)."); return 0;
         }
+        if (i + 1 < argc && !strcmp(argv[i], "--weights")) { weights_path = argv[i + 1]; continue; }
         if (i + 1 >= argc || !pg_parse_int(argv[i + 1], &value) || value < 1) goto invalid;
         if (!strcmp(argv[i], "--seed")) seed = value;
         else if (!strcmp(argv[i], "--pieces") && value <= 100000) limit = value;
@@ -16,6 +20,9 @@ int main(int argc, char **argv) {
         else goto invalid;
     }
     if (seed > INT_MAX - (games - 1)) goto invalid;
+    if (weights_path && !tetris_weights_load(weights_path, &weights, error, sizeof(error))) {
+        fprintf(stderr, "%s\n", error); return 1;
+    }
     puts("seed,pieces,lines,score,level,status");
     for (int game = 0; game < games; ++game) {
         TetrisBoard state = {0};
@@ -27,7 +34,7 @@ int main(int argc, char **argv) {
         tetris_score_reset(&score);
         ended = !tetris_spawn(&state, &random_state, &pose);
         while (!ended && placed < limit) {
-            if (!tetris_ai_plan(&state, pose, &plan)) { fputs("Planner failed for a valid piece.\n", stderr); return 1; }
+            if (!tetris_ai_plan_weighted(&state, pose, &weights, &plan)) { fputs("Planner failed for a valid piece.\n", stderr); return 1; }
             for (int i = 0; i < plan.count; ++i) {
                 int distance = tetris_step(&state, &pose, plan.actions[i]);
                 if (distance < 0) { fputs("Planner produced an illegal action.\n", stderr); return 1; }

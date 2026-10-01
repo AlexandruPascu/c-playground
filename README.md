@@ -35,6 +35,7 @@ cmake --build build-graphics --parallel 2
 
 ./build-graphics/tetris
 ./build-graphics/tetris --ai --seed 1
+./build-graphics/tetris --ai --seed 2 --weights models/tetris/cem-v1.weights
 ./build-graphics/tic_tac_toe_play 2
 ./build-graphics/skeleton
 ./build-graphics/sierpinski_triangle 5
@@ -42,7 +43,7 @@ cmake --build build-graphics --parallel 2
 ./build-graphics/sierpinski_carpet 3
 ```
 
-- **Tetris:** A/D or Left/Right move, W/Up rotates, S/Down soft-drops, Space hard-drops, P pauses, R restarts. Clear 1/2/3/4 rows for 100/300/500/800 points multiplied by the current level. Soft drops earn 1 point per cell and hard drops 2. Every 10 cleared lines raises the level and falling speed, up to level 20. The sidebar shows score, lines, level, and the best score for this session. Restart resets the game but keeps the session best. F2 toggles the AI or hands control back to you mid-piece; a green outline marks its planned landing. Start with `--ai --seed 1` for a repeatable demonstration. [How the AI works](docs/TETRIS_AI.md).
+- **Tetris:** A/D or Left/Right move, W/Up rotates, S/Down soft-drops, Space hard-drops, P pauses, R restarts. Clear 1/2/3/4 rows for 100/300/500/800 points multiplied by the current level. Soft drops earn 1 point per cell and hard drops 2. Every 10 cleared lines raises the level and falling speed, up to level 20. The sidebar shows score, lines, level, and the best score for this session. Restart resets the game but keeps the session best. F2 toggles the AI or hands control back to you mid-piece; a green outline marks its planned landing. Start with `--ai --seed 1` for a repeatable demonstration. [How the AI works](docs/TETRIS_AI.md). The optional [learned weights](docs/TETRIS_TRAINING.md) more than doubled mean cleared lines on a 100-seed test with a 1,000-piece cap. Omitting `--weights` retains the original baseline.
 - **Nested tic-tac-toe:** Click an empty cell, or use arrows and Enter/Space. X and digit 0 take turns on the same computer. F finishes and scores the board; R restarts. Start with size 2 for a quick game; the window supports sizes 1–5. See the [rules and evaluator](PoliTicTacToe/README).
 - **Skeleton:** WASD or arrows move; simultaneous directions allow diagonal movement at the same speed. The sprite wraps around the window.
 - **Fractals:** Left/Right change recursion depth. Triangle depth is limited to 0–9 and carpet depth to 0–5 to keep drawing responsive. The animation adds a depth every half-second.
@@ -88,7 +89,7 @@ ctest --test-dir build-sanitized --output-on-failure
 xvfb-run -a ctest --test-dir build-graphics --output-on-failure
 ```
 
-Tests cover AI paths through overhangs, sealed cavities, seeded games and deterministic replay, interactive and batch tic-tac-toe rules, linked-list ownership, PIN recovery, numeric/text input, image pixel values and XOR round trips, Tetris scoring/levels/drop points and row clearing and every piece's rotations/spawn/collision, Fibonacci base cases and method agreement, flood-fill borders and large components, malformed input, and graphics startup/animation/shutdown. The window checks do not replace interactive playtesting. GitHub Actions runs the console matrix, Linux sanitizers, and Linux Allegro/Xvfb checks.
+Tests cover weight validation, cross-entropy updates, training reproducibility and seed separation, AI paths through overhangs, sealed cavities, seeded games and deterministic replay, interactive and batch tic-tac-toe rules, linked-list ownership, PIN recovery, numeric/text input, image pixel values and XOR round trips, Tetris scoring/levels/drop points and row clearing and every piece's rotations/spawn/collision, Fibonacci base cases and method agreement, flood-fill borders and large components, malformed input, and graphics startup/animation/shutdown. The window checks do not replace interactive playtesting. GitHub Actions runs the console matrix, Linux sanitizers, and Linux Allegro/Xvfb checks.
 
 ## Background and credit
 

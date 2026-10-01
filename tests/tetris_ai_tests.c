@@ -1,5 +1,6 @@
 #include "Lab05/Solved/ai.h"
 #include <limits.h>
+#include <math.h>
 #include <stdio.h>
 #include <string.h>
 #define CHECK(value) do { if (!(value)) { fprintf(stderr, "FAIL %d: %s\n", __LINE__, #value); return 1; } } while (0)
@@ -68,6 +69,14 @@ static int placements(void) {
       CHECK(!tetris_ai_plan(&state, pose, &plan) && !plan.count);
       CHECK(tetris_step(&state, &pose, TETRIS_LEFT) == -1 && pose.x == INT_MAX); }
     { TetrisPose pose = start(0, 0); pose.piece = 7; CHECK(!tetris_ai_plan(&state, pose, &plan)); }
+    {
+        TetrisWeights weights = {{100, -15, -20, -4, -1}};
+        TetrisPose pose = start(3, 1);
+        CHECK(tetris_ai_plan_weighted(&state, pose, &weights, &plan) && !replay(&state, pose, &plan));
+        CHECK(!memcmp(&state, &saved, sizeof(state)));
+        weights.values[2] = NAN;
+        CHECK(!tetris_ai_plan_weighted(&state, pose, &weights, &plan) && !plan.count);
+    }
     memset(&state, 1, sizeof(state));
     CHECK(!tetris_ai_plan(&state, start(0, 0), &plan));
     return 0;

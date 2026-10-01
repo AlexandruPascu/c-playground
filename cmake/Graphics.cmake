@@ -36,6 +36,8 @@ if(BUILD_TESTING)
     endforeach()
     add_test(NAME window_tetris_ai COMMAND tetris --ai --seed 1 --smoke-test)
     set_tests_properties(window_tetris_ai PROPERTIES TIMEOUT 20 LABELS graphics)
+    add_test(NAME window_tetris_weights COMMAND tetris --ai --seed 1 --weights "${CMAKE_CURRENT_SOURCE_DIR}/models/tetris/cem-v1.weights" --smoke-test)
+    set_tests_properties(window_tetris_weights PROPERTIES TIMEOUT 20 LABELS graphics)
     if(Python3_Interpreter_FOUND)
         add_test(NAME graphics_arguments COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/graphics_cli_tests.py"
                  "$<TARGET_FILE:sierpinski_triangle>" "$<TARGET_FILE:sierpinski_carpet>"

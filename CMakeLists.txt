@@ -10,7 +10,7 @@ option(PLAYGROUND_REQUIRE_INTEGRATION_TESTS "Require Python for command-line tes
 
 add_library(tic_tac_toe_rules PoliTicTacToe/PoliTicTacToe.c)
 target_compile_definitions(tic_tac_toe_rules PRIVATE PLAYGROUND_NO_MAIN)
-add_library(tetris_rules Lab05/Solved/board.c Lab05/Solved/score.c Lab05/Solved/ai.c)
+add_library(tetris_rules Lab05/Solved/board.c Lab05/Solved/score.c Lab05/Solved/ai.c Lab05/Solved/weights.c)
 add_library(algorithms algorithms/fibonacci.c algorithms/flood_fill.c workshop/list.c workshop/pin.c workshop/image_ops.c)
 add_library(image_codec workshop/stb_codec.c)
 if(MSVC)
@@ -74,6 +74,9 @@ if(BUILD_TESTING)
         find_package(Python3 3.8 QUIET COMPONENTS Interpreter)
     endif()
     if(Python3_Interpreter_FOUND)
+        add_test(NAME tetris_training COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tetris_training_tests.py"
+                 "$<TARGET_FILE:tetris_ai>" "${CMAKE_CURRENT_SOURCE_DIR}/tools/train_tetris.py")
+        set_tests_properties(tetris_training PROPERTIES TIMEOUT 120)
         add_test(NAME tetris_ai_games COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tetris_ai_cli_tests.py" "$<TARGET_FILE:tetris_ai>")
         set_tests_properties(tetris_ai_games PROPERTIES TIMEOUT 90)
         add_test(NAME command_line COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/cli_tests.py"

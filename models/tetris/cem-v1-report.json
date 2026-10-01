@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "method": "cross-entropy search over log penalty magnitudes",
+  "config": {
+    "engine": "build/tetris_ai",
+    "output": "training-runs/cem-v1",
+    "iterations": 12,
+    "population": 32,
+    "train_games": 12,
+    "validation_games": 32,
+    "test_games": 100,
+    "pieces": 1000,
+    "seed": 23,
+    "workers": 4,
+    "elite_fraction": 0.25,
+    "smoothing": 0.7,
+    "initial_log_std": 1.0,
+    "min_log_std": 0.2,
+    "objective": "mean cleared lines at a fixed piece cap",
+    "train_seed_start": 1001,
+    "validation_seed_start": 1000001,
+    "test_seed_start": 2000001
+  },
+  "provenance": {
+    "engine_sha256": "faa7407d83946c2964ed90364d1e2fecab30bb774a87b32787dad510570eb14d",
+    "trainer_sha256": "aef488f799f228b1cdb7a3d94fb36ede6c0a646534af884d7c1c1380917d8ede",
+    "python": "3.12.3",
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "engine_sources_sha256": {
+      "ai.c": "c9efd15491e83a1ca490593a3bcfbd344d0d158b400407aea37a11847dda0c5e",
+      "ai.h": "3ee1d1314b396857a0102ef31c1a3f92f53a2f0e3ef2a23cf7d0916f11da1659",
+      "ai_cli.c": "049a6db7aa4a6bded29406b46dfa14d06c73af0284c943f93c11c308ae580acf",
+      "board.c": "7598492f6c391c934d47f47b0c31c2b96debcde0083df66d2e2235f8f599617b",
+      "board.h": "aeb28377708a8c2e39d66d60bf9567b8dedfb61092f8ae70fc0cb4185b7ad339",
+      "pieces.h": "39210e926d6a75b07dad21d3cd0b7237af6fbd77a4350e363c97050293a972f9",
+      "score.c": "b764250aaaa1469cff9f398f57522e848e0cb1941716c786df97e0023173c611",
+      "score.h": "2547841670226684041468fa7d6dfc4996d0916517f1a97743145b0c0789e475",
+      "tetris.c": "f25113c388cff2419c6ca5d7be0323f67778bd536d5285e60bb7a1aa3941d993",
+      "weights.c": "e18210e4b56ff2c60fe20a7f86283081988a4d35a64c715d349349b30e07507d",
+      "weights.h": "e822132343de40674ff266dc3b9d54d7a4ca9b76869d7692285fdd04c31c7498"
+    }
+  },
+  "selected_generation": 11,
+  "weights": {
+    "lines": 100.0,
+    "height": -7.867536098617677,
+    "holes": -22.830732908956822,
+    "bumpiness": -6.3923071247040895,
+    "max_height": -2.221724335610007
+  },
+  "validation": {
+    "baseline": {
+      "games": 32,
+      "mean_lines": 154.25,
+      "median_lines": 97.5,
+      "p10_lines": 34.4,
+      "min_lines": 18,
+      "max_lines": 399,
+      "mean_pieces": 412.59375,
+      "mean_score": 213762.25,
+      "reached_piece_cap": 4
+    },
+    "learned": {
+      "games": 32,
+      "mean_lines": 256.21875,
+      "median_lines": 276.0,
+      "p10_lines": 58.5,
+      "min_lines": 16,
+      "max_lines": 398,
+      "mean_pieces": 666.71875,
+      "mean_score": 396600.34375,
+      "reached_piece_cap": 12
+    }
+  },
+  "test": {
+    "seed_start": 2000001,
+    "seed_end": 2000100,
+    "baseline": {
+      "games": 100,
+      "mean_lines": 116.6,
+      "median_lines": 83.5,
+      "p10_lines": 17.9,
+      "min_lines": 2,
+      "max_lines": 398,
+      "mean_pieces": 321.35,
+      "mean_score": 140199.56,
+      "reached_piece_cap": 5
+    },
+    "learned": {
+      "games": 100,
+      "mean_lines": 248.47,
+      "median_lines": 259.5,
+      "p10_lines": 75.6,
+      "min_lines": 21,
+      "max_lines": 399,
+      "mean_pieces": 650.1,
+      "mean_score": 378375.29,
+      "reached_piece_cap": 30
+    },
+    "paired": {
+      "mean_line_difference": 131.87,
+      "mean_line_difference_ci95": [
+        99.05850000000001,
+        162.80474999999998
+      ],
+      "wins": 76,
+      "ties": 1,
+      "losses": 23
+    }
+  },
+  "post_training_verification": {
+    "change": "Zero-initialize the parser temporary in weights.c for MSVC warning analysis; no policy or format change.",
+    "weights_c_sha256": "9320b25c964aa2c7b3817ee961b7cfcd8ae3cf7d5a3207b1a7672ed668c3ee88",
+    "baseline_and_learned_test_rows_reproduced": 200
+  }
+}

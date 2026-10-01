@@ -10,6 +10,8 @@ F2 switches between AI and human control, including mid-piece. P pauses, R resta
 
 AI playback takes one action every 80 milliseconds. It owns the movement clock, so extra gravity cannot invalidate a route between actions; human play retains normal level-dependent gravity. AI and human play share collision checks, rotations, row clearing, drop bonuses, and scoring. The session-best score includes both modes.
 
+A learned profile is also available: add `--weights models/tetris/cem-v1.weights`. It uses the same search with coefficients optimized offline by cross-entropy. See the [training guide and results](TETRIS_TRAINING.md). Without that option, the original baseline below remains active.
+
 ## How it decides
 
 The agent reads the actual board array. It uses a deterministic heuristic search, with no screen capture, external service, neural network, or training dependency.
@@ -28,7 +30,7 @@ The hand-selected evaluation is:
 - 80 * holes
 - 3 * adjacent_column_height_differences
 - 2 * maximum_column_height
-- 1,000,000 if the result has a filled cell in the top row
+- 1,000,000,000 if the result has a filled cell in the top row
 ```
 
 A hole is an empty cell below an occupied cell in the same column. All stack features are measured after line clearing. Drop points do not influence the choice; they are awarded normally during execution. Planning never mutates the live board.
@@ -52,6 +54,6 @@ The tests independently replay planned geometry, verify that planning leaves the
 
 ## Limits and possible extensions
 
-This is a one-piece heuristic baseline. Greedy choices can create problems that only become apparent several pieces later. A next-piece queue would enable lookahead; a separate training/evaluation seed split could support weight optimization. Reinforcement learning would require a simulation API with observations, actions, resets, rewards, and a separate training pipeline.
+This is a one-piece heuristic baseline. Greedy choices can create problems that only become apparent several pieces later. A next-piece queue would enable lookahead; cross-entropy weight optimization is now implemented with separate training, validation, and test seeds. Reinforcement learning would require a simulation API with observations, actions, resets, rewards, and a separate training pipeline.
 
 The implementation lives in [ai.c](../Lab05/Solved/ai.c), with the headless runner in [ai_cli.c](../Lab05/Solved/ai_cli.c). The GUI and runner use the same board and movement functions.

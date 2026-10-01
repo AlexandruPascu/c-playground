@@ -1,0 +1,554 @@
+[
+  {
+    "generation": 1,
+    "train_seed_start": 1001,
+    "train_seed_end": 1012,
+    "train_winner": {
+      "games": 12,
+      "mean_lines": 244.5,
+      "median_lines": 267.0,
+      "p10_lines": 75.4,
+      "min_lines": 13,
+      "max_lines": 396,
+      "mean_pieces": 636.5833333333334,
+      "mean_score": 380931.4166666667,
+      "reached_piece_cap": 6
+    },
+    "validation_winner": {
+      "games": 32,
+      "mean_lines": 247.4375,
+      "median_lines": 247.0,
+      "p10_lines": 62.1,
+      "min_lines": 16,
+      "max_lines": 397,
+      "mean_pieces": 647.28125,
+      "mean_score": 379085.84375,
+      "reached_piece_cap": 10
+    },
+    "validation_best": {
+      "games": 32,
+      "mean_lines": 247.4375,
+      "median_lines": 247.0,
+      "p10_lines": 62.1,
+      "min_lines": 16,
+      "max_lines": 397,
+      "mean_pieces": 647.28125,
+      "mean_score": 379085.84375,
+      "reached_piece_cap": 10
+    },
+    "selected_generation": 1,
+    "winner_weights": [
+      100.0,
+      -4.971537972072969,
+      -31.824464092151036,
+      -7.837221368547967,
+      -1.7113577406602671
+    ]
+  },
+  {
+    "generation": 2,
+    "train_seed_start": 1013,
+    "train_seed_end": 1024,
+    "train_winner": {
+      "games": 12,
+      "mean_lines": 226.58333333333334,
+      "median_lines": 219.5,
+      "p10_lines": 53.9,
+      "min_lines": 24,
+      "max_lines": 398,
+      "mean_pieces": 592.1666666666666,
+      "mean_score": 349798,
+      "reached_piece_cap": 3
+    },
+    "validation_winner": {
+      "games": 32,
+      "mean_lines": 186.46875,
+      "median_lines": 186.0,
+      "p10_lines": 47.1,
+      "min_lines": 3,
+      "max_lines": 399,
+      "mean_pieces": 497.1875,
+      "mean_score": 261153.125,
+      "reached_piece_cap": 2
+    },
+    "validation_best": {
+      "games": 32,
+      "mean_lines": 247.4375,
+      "median_lines": 247.0,
+      "p10_lines": 62.1,
+      "min_lines": 16,
+      "max_lines": 397,
+      "mean_pieces": 647.28125,
+      "mean_score": 379085.84375,
+      "reached_piece_cap": 10
+    },
+    "selected_generation": 1,
+    "winner_weights": [
+      100.0,
+      -31.416438609123816,
+      -44.509893268430524,
+      -12.037284611252813,
+      -2.1140304422718588
+    ]
+  },
+  {
+    "generation": 3,
+    "train_seed_start": 1025,
+    "train_seed_end": 1036,
+    "train_winner": {
+      "games": 12,
+      "mean_lines": 261.9166666666667,
+      "median_lines": 298.0,
+      "p10_lines": 84.2,
+      "min_lines": 64,
+      "max_lines": 394,
+      "mean_pieces": 687.5833333333334,
+      "mean_score": 401324.4166666667,
+      "reached_piece_cap": 3
+    },
+    "validation_winner": {
+      "games": 32,
+      "mean_lines": 212.75,
+      "median_lines": 187.5,
+      "p10_lines": 79.4,
+      "min_lines": 40,
+      "max_lines": 396,
+      "mean_pieces": 564.84375,
+      "mean_score": 296381.75,
+      "reached_piece_cap": 7
+    },
+    "validation_best": {
+      "games": 32,
+      "mean_lines": 247.4375,
+      "median_lines": 247.0,
+      "p10_lines": 62.1,
+      "min_lines": 16,
+      "max_lines": 397,
+      "mean_pieces": 647.28125,
+      "mean_score": 379085.84375,
+      "reached_piece_cap": 10
+    },
+    "selected_generation": 1,
+    "winner_weights": [
+      100.0,
+      -6.2787791091942236,
+      -31.41675520610039,
+      -8.86060742628699,
+      -2.514214651890303
+    ]
+  },
+  {
+    "generation": 4,
+    "train_seed_start": 1037,
+    "train_seed_end": 1048,
+    "train_winner": {
+      "games": 12,
+      "mean_lines": 294,
+      "median_lines": 389.5,
+      "p10_lines": 139.5,
+      "min_lines": 37,
+      "max_lines": 399,
+      "mean_pieces": 758,
+      "mean_score": 478054.75,
+      "reached_piece_cap": 7
+    },
+    "validation_winner": {
+      "games": 32,
+      "mean_lines": 245.34375,
+      "median_lines": 260.0,
+      "p10_lines": 58.4,
+      "min_lines": 16,
+      "max_lines": 398,
+      "mean_pieces": 640.3125,
+      "mean_score": 375270.5625,
+      "reached_piece_cap": 11
+    },
+    "validation_best": {
+      "games": 32,
+      "mean_lines": 247.4375,
+      "median_lines": 247.0,
+      "p10_lines": 62.1,
+      "min_lines": 16,
+      "max_lines": 397,
+      "mean_pieces": 647.28125,
+      "mean_score": 379085.84375,
+      "reached_piece_cap": 10
+    },
+    "selected_generation": 1,
+    "winner_weights": [
+      100.0,
+      -6.495106063262456,
+      -29.466666059934457,
+      -7.221202000928453,
+      -1.2044362228665706
+    ]
+  },
+  {
+    "generation": 5,
+    "train_seed_start": 1049,
+    "train_seed_end": 1060,
+    "train_winner": {
+      "games": 12,
+      "mean_lines": 296.0833333333333,
+      "median_lines": 368.0,
+      "p10_lines": 109.60000000000001,
+      "min_lines": 41,
+      "max_lines": 398,
+      "mean_pieces": 765.9166666666666,
+      "mean_score": 483647.75,
+      "reached_piece_cap": 6
+    },
+    "validation_winner": {
+      "games": 32,
+      "mean_lines": 239.5,
+      "median_lines": 237.0,
+      "p10_lines": 77.4,
+      "min_lines": 34,
+      "max_lines": 399,
+      "mean_pieces": 626.5,
+      "mean_score": 361261.625,
+      "reached_piece_cap": 10
+    },
+    "validation_best": {
+      "games": 32,
+      "mean_lines": 247.4375,
+      "median_lines": 247.0,
+      "p10_lines": 62.1,
+      "min_lines": 16,
+      "max_lines": 397,
+      "mean_pieces": 647.28125,
+      "mean_score": 379085.84375,
+      "reached_piece_cap": 10
+    },
+    "selected_generation": 1,
+    "winner_weights": [
+      100.0,
+      -7.70247357169943,
+      -20.740924422924227,
+      -6.752220497556759,
+      -1.3412026280549636
+    ]
+  },
+  {
+    "generation": 6,
+    "train_seed_start": 1061,
+    "train_seed_end": 1072,
+    "train_winner": {
+      "games": 12,
+      "mean_lines": 334.3333333333333,
+      "median_lines": 392.5,
+      "p10_lines": 222.7,
+      "min_lines": 18,
+      "max_lines": 399,
+      "mean_pieces": 855.4166666666666,
+      "mean_score": 568442.75,
+      "reached_piece_cap": 8
+    },
+    "validation_winner": {
+      "games": 32,
+      "mean_lines": 241.875,
+      "median_lines": 228.0,
+      "p10_lines": 58.4,
+      "min_lines": 16,
+      "max_lines": 397,
+      "mean_pieces": 632.5,
+      "mean_score": 367241.84375,
+      "reached_piece_cap": 11
+    },
+    "validation_best": {
+      "games": 32,
+      "mean_lines": 247.4375,
+      "median_lines": 247.0,
+      "p10_lines": 62.1,
+      "min_lines": 16,
+      "max_lines": 397,
+      "mean_pieces": 647.28125,
+      "mean_score": 379085.84375,
+      "reached_piece_cap": 10
+    },
+    "selected_generation": 1,
+    "winner_weights": [
+      100.0,
+      -7.057345256949692,
+      -23.658986449066685,
+      -6.2614220401970035,
+      -1.69225918043154
+    ]
+  },
+  {
+    "generation": 7,
+    "train_seed_start": 1073,
+    "train_seed_end": 1084,
+    "train_winner": {
+      "games": 12,
+      "mean_lines": 319.9166666666667,
+      "median_lines": 391.0,
+      "p10_lines": 77.30000000000001,
+      "min_lines": 36,
+      "max_lines": 399,
+      "mean_pieces": 819.6666666666666,
+      "mean_score": 542866.3333333334,
+      "reached_piece_cap": 8
+    },
+    "validation_winner": {
+      "games": 32,
+      "mean_lines": 235.96875,
+      "median_lines": 210.5,
+      "p10_lines": 49.6,
+      "min_lines": 3,
+      "max_lines": 399,
+      "mean_pieces": 617.53125,
+      "mean_score": 361737,
+      "reached_piece_cap": 9
+    },
+    "validation_best": {
+      "games": 32,
+      "mean_lines": 247.4375,
+      "median_lines": 247.0,
+      "p10_lines": 62.1,
+      "min_lines": 16,
+      "max_lines": 397,
+      "mean_pieces": 647.28125,
+      "mean_score": 379085.84375,
+      "reached_piece_cap": 10
+    },
+    "selected_generation": 1,
+    "winner_weights": [
+      100.0,
+      -12.281803467224004,
+      -31.39015784667996,
+      -7.528757526922347,
+      -1.5064687502640242
+    ]
+  },
+  {
+    "generation": 8,
+    "train_seed_start": 1085,
+    "train_seed_end": 1096,
+    "train_winner": {
+      "games": 12,
+      "mean_lines": 294.5833333333333,
+      "median_lines": 344.5,
+      "p10_lines": 110.0,
+      "min_lines": 79,
+      "max_lines": 398,
+      "mean_pieces": 759.9166666666666,
+      "mean_score": 474598.9166666667,
+      "reached_piece_cap": 6
+    },
+    "validation_winner": {
+      "games": 32,
+      "mean_lines": 211.75,
+      "median_lines": 213.0,
+      "p10_lines": 40.4,
+      "min_lines": 3,
+      "max_lines": 399,
+      "mean_pieces": 558.75,
+      "mean_score": 319083.09375,
+      "reached_piece_cap": 8
+    },
+    "validation_best": {
+      "games": 32,
+      "mean_lines": 247.4375,
+      "median_lines": 247.0,
+      "p10_lines": 62.1,
+      "min_lines": 16,
+      "max_lines": 397,
+      "mean_pieces": 647.28125,
+      "mean_score": 379085.84375,
+      "reached_piece_cap": 10
+    },
+    "selected_generation": 1,
+    "winner_weights": [
+      100.0,
+      -7.913775784366181,
+      -21.934939417474684,
+      -4.958850218997563,
+      -1.7656713457146516
+    ]
+  },
+  {
+    "generation": 9,
+    "train_seed_start": 1097,
+    "train_seed_end": 1108,
+    "train_winner": {
+      "games": 12,
+      "mean_lines": 305.75,
+      "median_lines": 363.0,
+      "p10_lines": 141.0,
+      "min_lines": 121,
+      "max_lines": 398,
+      "mean_pieces": 789.9166666666666,
+      "mean_score": 492505.8333333333,
+      "reached_piece_cap": 6
+    },
+    "validation_winner": {
+      "games": 32,
+      "mean_lines": 247.4375,
+      "median_lines": 247.0,
+      "p10_lines": 62.1,
+      "min_lines": 16,
+      "max_lines": 397,
+      "mean_pieces": 647.28125,
+      "mean_score": 379085.84375,
+      "reached_piece_cap": 10
+    },
+    "validation_best": {
+      "games": 32,
+      "mean_lines": 247.4375,
+      "median_lines": 247.0,
+      "p10_lines": 62.1,
+      "min_lines": 16,
+      "max_lines": 397,
+      "mean_pieces": 647.28125,
+      "mean_score": 379085.84375,
+      "reached_piece_cap": 10
+    },
+    "selected_generation": 1,
+    "winner_weights": [
+      100.0,
+      -4.971537972072969,
+      -31.824464092151036,
+      -7.837221368547967,
+      -1.7113577406602671
+    ]
+  },
+  {
+    "generation": 10,
+    "train_seed_start": 1109,
+    "train_seed_end": 1120,
+    "train_winner": {
+      "games": 12,
+      "mean_lines": 243.83333333333334,
+      "median_lines": 248.0,
+      "p10_lines": 95.3,
+      "min_lines": 16,
+      "max_lines": 399,
+      "mean_pieces": 637.4166666666666,
+      "mean_score": 378526.3333333333,
+      "reached_piece_cap": 4
+    },
+    "validation_winner": {
+      "games": 32,
+      "mean_lines": 247.4375,
+      "median_lines": 247.0,
+      "p10_lines": 62.1,
+      "min_lines": 16,
+      "max_lines": 397,
+      "mean_pieces": 647.28125,
+      "mean_score": 379085.84375,
+      "reached_piece_cap": 10
+    },
+    "validation_best": {
+      "games": 32,
+      "mean_lines": 247.4375,
+      "median_lines": 247.0,
+      "p10_lines": 62.1,
+      "min_lines": 16,
+      "max_lines": 397,
+      "mean_pieces": 647.28125,
+      "mean_score": 379085.84375,
+      "reached_piece_cap": 10
+    },
+    "selected_generation": 1,
+    "winner_weights": [
+      100.0,
+      -4.971537972072969,
+      -31.824464092151036,
+      -7.837221368547967,
+      -1.7113577406602671
+    ]
+  },
+  {
+    "generation": 11,
+    "train_seed_start": 1121,
+    "train_seed_end": 1132,
+    "train_winner": {
+      "games": 12,
+      "mean_lines": 304.3333333333333,
+      "median_lines": 390.0,
+      "p10_lines": 115.20000000000002,
+      "min_lines": 38,
+      "max_lines": 399,
+      "mean_pieces": 783.5833333333334,
+      "mean_score": 501644.4166666667,
+      "reached_piece_cap": 7
+    },
+    "validation_winner": {
+      "games": 32,
+      "mean_lines": 256.21875,
+      "median_lines": 276.0,
+      "p10_lines": 58.5,
+      "min_lines": 16,
+      "max_lines": 398,
+      "mean_pieces": 666.71875,
+      "mean_score": 396600.34375,
+      "reached_piece_cap": 12
+    },
+    "validation_best": {
+      "games": 32,
+      "mean_lines": 256.21875,
+      "median_lines": 276.0,
+      "p10_lines": 58.5,
+      "min_lines": 16,
+      "max_lines": 398,
+      "mean_pieces": 666.71875,
+      "mean_score": 396600.34375,
+      "reached_piece_cap": 12
+    },
+    "selected_generation": 11,
+    "winner_weights": [
+      100.0,
+      -7.867536098617677,
+      -22.830732908956822,
+      -6.3923071247040895,
+      -2.221724335610007
+    ]
+  },
+  {
+    "generation": 12,
+    "train_seed_start": 1133,
+    "train_seed_end": 1144,
+    "train_winner": {
+      "games": 12,
+      "mean_lines": 255.33333333333334,
+      "median_lines": 262.5,
+      "p10_lines": 106.10000000000001,
+      "min_lines": 55,
+      "max_lines": 397,
+      "mean_pieces": 670.75,
+      "mean_score": 387820.4166666667,
+      "reached_piece_cap": 2
+    },
+    "validation_winner": {
+      "games": 32,
+      "mean_lines": 246.5625,
+      "median_lines": 293.0,
+      "p10_lines": 41.4,
+      "min_lines": 16,
+      "max_lines": 399,
+      "mean_pieces": 641.59375,
+      "mean_score": 391997.9375,
+      "reached_piece_cap": 13
+    },
+    "validation_best": {
+      "games": 32,
+      "mean_lines": 256.21875,
+      "median_lines": 276.0,
+      "p10_lines": 58.5,
+      "min_lines": 16,
+      "max_lines": 398,
+      "mean_pieces": 666.71875,
+      "mean_score": 396600.34375,
+      "reached_piece_cap": 12
+    },
+    "selected_generation": 11,
+    "winner_weights": [
+      100.0,
+      -5.411298710435138,
+      -26.49261968103794,
+      -5.777562755010873,
+      -3.0597694800253965
+    ]
+  }
+]

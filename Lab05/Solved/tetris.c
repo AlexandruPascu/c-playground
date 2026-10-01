@@ -30,7 +30,7 @@ static void draw_target(TetrisPose pose) {
                                   al_map_rgb(120, 200, 130), 2);
             }
 }
-static void draw_game(PlaygroundWindow *window, int x, int y, int piece, int rotation, int ended, int paused, const TetrisScore *score, uint64_t best, int autoplay, const TetrisPlan *plan) {
+static void draw_game(PlaygroundWindow *window, int x, int y, int piece, int rotation, int ended, int paused, const TetrisScore *score, uint64_t best, int autoplay, const TetrisPlan *plan, int custom_weights) {
     al_clear_to_color(al_map_rgb(12, 18, 28));
     al_draw_rectangle(BORDER_SIZE - 2, BORDER_SIZE - 2, BOARD_RIGHT - BORDER_SIZE + 2,
                       WIN_HEIGHT - BORDER_SIZE + 2, al_map_rgb(80, 105, 130), 2);
@@ -52,6 +52,7 @@ static void draw_game(PlaygroundWindow *window, int x, int y, int piece, int rot
         pg_text(window, left, 152, 1.5f, white, "LINES  %llu", (unsigned long long)score->lines);
         pg_text(window, left, 184, 1.5f, white, "LEVEL  %d / 20", score->level);
         pg_text(window, left, 230, 1, white, "BEST THIS SESSION: %llu", (unsigned long long)best);
+        pg_text(window, left, 258, 1, white, custom_weights ? "Strategy: loaded weights" : "Strategy: baseline");
         pg_text(window, left, 286, 1.5f, cyan, ended ? "GAME OVER" : paused ? "PAUSED" : autoplay ? "AI PLAYING" : "YOUR TURN");
         pg_text(window, left, 315, 1, white, autoplay ? "F2: take over from AI" : "F2: enable AI");
         pg_text(window, left, 344, 1.3f, white, "Arrows / WASD");
@@ -80,18 +81,25 @@ int main(int argc, char **argv) {
     TetrisPose pose;
     TetrisPlan plan = {0};
     TetrisScore score;
+    TetrisWeights weights = tetris_default_weights;
+    const char *weights_path = NULL;
+    char error[256];
     uint32_t random_state;
     uint64_t best = 0;
     double elapsed, accumulated = 0, ai_elapsed = 0;
     for (int i = 1; i < argc; ++i) {
         if (!strcmp(argv[i], "--help")) {
-            puts("Usage: tetris [--ai] [--seed 1..2147483647] [--smoke-test]\nA/D or Left/Right: move; W/Up: rotate; S/Down: soft drop; Space: hard drop;\nF2: toggle AI / take over; P: pause; R: restart; Esc: close.\nAI advances through legal actions at its own viewing pace. --seed makes restarts repeatable.");
+            puts("Usage: tetris [--ai] [--seed 1..2147483647] [--weights file] [--smoke-test]\nA/D or Left/Right: move; W/Up: rotate; S/Down: soft drop; Space: hard drop;\nF2: toggle AI / take over; P: pause; R: restart; Esc: close.\nAI advances through legal actions at its own viewing pace. --seed makes restarts repeatable.");
             return 0;
         }
         if (!strcmp(argv[i], "--smoke-test")) smoke = 1;
         else if (!strcmp(argv[i], "--ai")) autoplay = 1;
+        else if (!strcmp(argv[i], "--weights") && i + 1 < argc) { weights_path = argv[++i]; }
         else if (!strcmp(argv[i], "--seed") && i + 1 < argc && pg_parse_int(argv[i + 1], &seed) && seed > 0) { seeded = 1; ++i; }
         else { fputs("Invalid arguments. Use tetris --help.\n", stderr); return 1; }
+    }
+    if (weights_path && !tetris_weights_load(weights_path, &weights, error, sizeof(error))) {
+        fprintf(stderr, "%s\n", error); return 1;
     }
     random_state = seeded || smoke ? (uint32_t)seed : (uint32_t)time(NULL);
     if (!pg_window_open(&window, "Tetris - F2 AI, P pause, R restart", WIN_WIDTH, WIN_HEIGHT, 0, smoke)) return 1;
@@ -139,7 +147,7 @@ int main(int argc, char **argv) {
                    invalidate a route; human play keeps the usual level-dependent gravity. */
                 ai_elapsed += elapsed;
                 if (!plan.count) {
-                    if (!tetris_ai_plan(&tetris_board, pose, &plan)) { failed = 1; break; }
+                    if (!tetris_ai_plan_weighted(&tetris_board, pose, &weights, &plan)) { failed = 1; break; }
                     next_action = 0;
                     redraw = 1;
                 }
@@ -169,7 +177,7 @@ int main(int argc, char **argv) {
         }
         if (score.points > best) best = score.points;
         if (redraw) {
-            draw_game(&window, pose.x, pose.y, pose.piece, pose.rotation, ended, paused, &score, best, autoplay, &plan);
+            draw_game(&window, pose.x, pose.y, pose.piece, pose.rotation, ended, paused, &score, best, autoplay, &plan, weights_path != NULL);
             redraw = 0;
         }
     }
