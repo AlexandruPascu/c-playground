@@ -94,3 +94,10 @@ Tests cover weight validation, cross-entropy updates, training reproducibility a
 ## Background and credit
 
 This repository grew from C workshop and coursework exercises, with starter code, reference solutions, assets, and later personal work kept together. The exact division of the original implementation between workshop assistance and personal contributions was not recorded. Original notices and exercise statements are retained; the current maintenance pass adds correctness fixes, shared build support, tests, and documentation. The image exercises use a shared, pinned copy of [stb image codecs](third_party/stb/README.md), with their author and license notices retained.
+
+## License
+
+My own work here is under the [MIT License](LICENSE). It covers everything except:
+
+- **Original course files:** the files in `Lab01`–`Lab05` and `Exam` that come from the 2019 uploads, including my later changes to them. They mix the course's statements, starter code, reference solutions and assets with my work, and the split was not recorded. `git ls-tree -r --name-only 5a18928 -- Lab01 Lab02 Lab03 Lab04 Lab05 Exam` lists them, including a few since removed. Files added to those folders since, such as the Makefiles and the Tetris AI in `Lab05/Solved/`, are covered.
+- **`third_party/stb`:** keeps its own license, MIT or public domain ([LICENSE](third_party/stb/LICENSE)).
